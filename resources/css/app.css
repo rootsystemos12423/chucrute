@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+body {
+    font-family: 'Sora', sans-serif;
+}
+
+.text-statusPending {
+    color: #e3bf1f;
+}
+
+.bg-statusPending-100 {
+    background-color: #e3bf1f1a;
+}
+
+.text-statusApproved {
+    color: rgb(0 187 142);
+}
+
+.bg-statusApproved-100 {
+    background-color: #00bb8e1a;
+}
+
+.text-regular {
+    font-size: 13px;
+}
+
+.text-secondary {
+    color: #515d74;
+}
+
+.text-statusTransit {
+    color: #9747ff;
+}
+
+.bg-statusTransit-100 {
+    background-color: #9747ff1a;
+}
+
+.text-statusDelivered {
+    color: #499f0c;
+}
+
+.bg-statusDelivered-100 {
+    background-color: #499f0c1a;
+}
+
+.bg-uncontrastColor {
+    background-color: #fff;
+}
+
+.bg-shadowColor-400 {
+    background-color: #00000066;
+}
+
+.bg-tableHeader {
+    background-color: #f9fafb;
+}
+
+.text-highlighted {
+    color: #ff0071;
+}
+
+.preview--desktop {
+    margin-inline: auto;
+    min-width: 550px;
+    max-width: 960px;
+    border-width: 1px;
+    --tw-border-opacity: 1;
+    border-color: rgb(209 213 219 / var(--tw-border-opacity));
+    max-height: 760px;
+}
+
+/* Remove o outline e a borda ao focar qualquer input, textarea ou select */
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    box-shadow: none !important; /* Caso algum box-shadow esteja sendo aplicado */
+}
+
