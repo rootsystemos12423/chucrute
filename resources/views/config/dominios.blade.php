@@ -1,5 +1,5 @@
 <x-app-layout>
-  @if($domains)
+  @if($domains->count() > 0)
   <div class="flex flex-col w-full px-2 pt-3 h-max xl:overflow-hidden">
     <!---->
     <div class="flex flex-col gap-10">
