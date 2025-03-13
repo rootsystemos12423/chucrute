@@ -8,6 +8,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\AppsController;
 
 Route::post('public/shopify/cart', [CheckoutController::class, 'shopify_cart_payload']);
+Route::options('public/shopify/cart', [CheckoutController::class, 'shopify_cart_payload']);
 
 Route::post('store/shopify/credentials', [AppsController::class, 'storeShopifyCheckoutStore']);
 
