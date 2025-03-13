@@ -412,7 +412,7 @@ public function cart_total_value(Request $request)
         }
     }
 
-    $fretePrice = $checkout->frete->price;
+    $fretePrice = $checkout->frete->price ?? 0;
 
     if(!isEmpty($fretePrice)){
         // e converta para centavos
