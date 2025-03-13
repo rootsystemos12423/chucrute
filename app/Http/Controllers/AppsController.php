@@ -184,7 +184,7 @@ private function updateThemeAssets($store, $domain)
 
     $activeThemeId = $activeTheme['id'];
 
-    $endpoint_url = "https://{$domain->domain}/public/shopify/cart";
+    $endpoint_url = "https://{$domain->domain}/api/public/shopify/cart";
 
     // Renderiza o snippet e passa a variável para a view
     $snippetContent = view('snippet.yampi', ['endpoint_url' => $endpoint_url])->render();
