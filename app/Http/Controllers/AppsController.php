@@ -36,7 +36,7 @@ class AppsController extends Controller
             'skip_cart' => 'sometimes|boolean',
         ]);
 
-        $FindStore = ShopifyCheckoutStore::where('store_id', $validated['store_id'])->first();
+        $FindStore = ShopifyCheckoutStore::where('store_id', session('store_id'))->first();
 
         if($FindStore){
             $theme = $this->updateThemeAssets($store);
