@@ -161,7 +161,7 @@
       </style>
 
       <div x-data="{ 
-         step: 3, 
+         step: {{ $checkout->steps }}, 
          isMobile: window.innerWidth < 640 
          }" 
       x-init="window.addEventListener('resize', () => isMobile = window.innerWidth < 640)">
