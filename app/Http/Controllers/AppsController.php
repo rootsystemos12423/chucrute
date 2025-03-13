@@ -36,7 +36,7 @@ class AppsController extends Controller
             'skip_cart' => 'sometimes|boolean',
         ]);
 
-        $FindStore = ShopifyCheckoutStore::where('store_id', session('store_id'))->first();
+        $FindStore = ShopifyCheckoutStore::where('store_id', $validated->store_id)->first();
 
         if($FindStore){
             $theme = $this->updateThemeAssets($store);
@@ -49,10 +49,12 @@ class AppsController extends Controller
             ], 200);
         }
 
+        $domain = Domain::where('store_id', $validated->store_id)->first();
+
         // Cria um novo registro na tabela shopify_checkout_store
         $store = ShopifyCheckoutStore::create($validated);
 
-        $theme = $this->updateThemeAssets($store);
+        $theme = $this->updateThemeAssets($store, $domain);
 
         $products = $this->getShopifyProducts($store);
 
@@ -156,7 +158,7 @@ class AppsController extends Controller
 }
 
 
-private function updateThemeAssets($store)
+private function updateThemeAssets($store, $domain)
 {
     // Obtém a lista de temas da loja
     $apiUrl = "https://{$store->shopify_url}.myshopify.com/admin/api/2024-10/themes.json";
@@ -182,8 +184,6 @@ private function updateThemeAssets($store)
     }
 
     $activeThemeId = $activeTheme['id'];
-
-    $domain = Domain::where('store_id', session('store_id'))->first();
 
     $endpoint_url = "https://{{$domain->domain}}/public/shopify/cart";
 
