@@ -414,7 +414,7 @@ public function cart_total_value(Request $request)
 
     $fretePrice = $checkout->frete->price ?? 0;
 
-    if(!isEmpty($fretePrice)){
+    if($fretePrice > 0){
         // e converta para centavos
         if ($fretePrice < 1) {
             $fretePrice *= 100; // Converte para centavos
