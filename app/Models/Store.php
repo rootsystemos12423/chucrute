@@ -75,7 +75,7 @@ class Store extends Model
                     'rodape_show_business_adress' => '1',
                     'rodape_show_cnpj_details' => '1',
                     'rodape_cnpj' => '00.000.000/0001-00',
-                    'rodape_cnpj' => 'Loja Online Ltda',
+                    'rodape_razao_social' => 'Loja Online Ltda',
                     'resume_cart_show' => 'always_open',
                     'appearance_title_color' => '#111111', // Cor alterada
                     'appearance_description_color' => '#222222', // Cor alterada
