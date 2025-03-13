@@ -165,6 +165,7 @@ class CheckoutController extends Controller
                 'token' => $cart->token, // Utiliza o mesmo token do carrinho
                 'shop_domain' => $shop->shopify_url,
                 'store_id' => $domain->store_id,
+                'step' => 1,
             ]
         );
 
