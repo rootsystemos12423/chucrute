@@ -625,7 +625,7 @@
                               timeout: null,
 
                               async fetchFrete() {
-                                 this.errors = {};
+                                 this.errors = {}; // Limpar os erros
 
                                  if (!this.form.cep) {
                                     this.errors.cep = "Campo obrigatório";
@@ -637,26 +637,33 @@
 
                                  this.timeout = setTimeout(async () => {
                                     try {
-                                       const response = await fetch('/api/checkout/shipment/cep_lookup', {
-                                          method: 'POST',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({
-                                             checkoutToken: checkoutToken,
-                                             cep: this.form.cep
-                                          })
-                                       });
+                                          const response = await fetch('/api/checkout/shipment/cep_lookup', {
+                                             method: 'POST',
+                                             headers: { 'Content-Type': 'application/json' },
+                                             body: JSON.stringify({
+                                                checkoutToken: checkoutToken,
+                                                cep: this.form.cep
+                                             })
+                                          });
 
-                                       if (!response.ok) throw new Error('Erro ao consultar o frete');
+                                          if (!response.ok) throw new Error('Erro ao consultar o frete');
 
-                                       this.freteData = await response.json();
-                                       this.form.endereco = this.freteData.logradouro || '';
-                                       this.form.bairro = this.freteData.bairro || '';
-                                       this.form.complemento = this.freteData.complemento || '';
-                                       this.loading = false;
+                                          this.freteData = await response.json();
+                                          console.log('Frete Data:', this.freteData); // Verifique os dados retornados da API
+
+                                          // Preenchendo os campos apenas se a resposta for válida
+                                          if (this.freteData) {
+                                             this.form.endereco = this.freteData.logradouro || '';
+                                             this.form.bairro = this.freteData.bairro || '';
+                                             this.form.complemento = this.freteData.complemento || '';
+                                          } else {
+                                             this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
+                                          }
+                                          this.loading = false;
                                     } catch (error) {
-                                       console.error(error);
-                                       this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
-                                       this.loading = false;
+                                          console.error(error);
+                                          this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
+                                          this.loading = false;
                                     }
                                  }, 500);
                               },
@@ -898,7 +905,7 @@
                                  <span class="absolute top-2 -translate-y-1/2 sm:right-[-190px] right-[-170px] bg-[{{ $customizations['appearance_button_color_second'] }}] text-[{{ $customizations['appearance_text_color_second'] }}] px-2 text-[9px] font-bold rounded-md">
                                     APROVAÇÃO IMEDIATA
                                  </span>
-                                 @if(isset($payment_discount_credit_card->discount_percentage) > 0)
+                                 @if($payment_discount_credit_card->discount_percentage > 0)
                                        <span class="absolute top-7 -translate-y-1/2 sm:right-[-190px] right-[-170px] discount-flag px-2 text-[9px] font-bold rounded-md">
                                           {{ (int) $payment_discount_credit_card->discount_percentage }}% DE DESCONTO
                                        </span>
@@ -1210,7 +1217,7 @@
                                  <span class="absolute top-2 -translate-y-1/2 sm:right-[-250px] right-[-240px] bg-[{{ $customizations['appearance_button_color_second'] }}] text-[{{ $customizations['appearance_text_color_second'] }}] px-2 text-[9px] font-bold rounded-md">
                                     APROVAÇÃO IMEDIATA
                                  </span>
-                                 @if(isset($payment_discount_pix->discount_percentage) > 0)
+                                 @if($payment_discount_pix->discount_percentage > 0)
                                  <span class="absolute top-7 -translate-y-1/2 sm:right-[-250px] right-[-240px] discount-flag px-2 text-[9px] font-bold rounded-md">
                                     {{ (int) $payment_discount_pix->discount_percentage }}% DE DESCONTO
                                  </span>
