@@ -109,7 +109,7 @@ class CheckoutController extends Controller
             ['origin' => $data['origin']]
         );
 
-        $domain = Domain::where('store_id', $checkout->store_id)->first();
+        $domain = Domain::where('domain', $domain->domain)->first();
         
         // Salva os dados do carrinho
         $cartData = $data['cart_payload'];
