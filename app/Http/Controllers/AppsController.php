@@ -60,7 +60,6 @@ class AppsController extends Controller
 
         return response()->json([
             'message' => 'Shopify checkout store created successfully!',
-            'products' => $this->updateThemeAssets($store), 
         ], 200);
     }
 
