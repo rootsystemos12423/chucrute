@@ -171,7 +171,7 @@
                @if(isset($customizations['cabecalho_logo_path']) && $customizations['cabecalho_logo_path'])
                <img class="max-w-[100px] h-full" src="{{ asset($customizations['cabecalho_logo_path']) }}" alt="Loja Logo">
                @else
-                     <h1 class="text-xl font-extrabold p-2">BEOUT</h1>
+                     <h1 class="text-xl font-extrabold p-2">{{ $checkout->store->name }}</h1>
                @endif           
             </div>
             <div>

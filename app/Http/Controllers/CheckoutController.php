@@ -165,7 +165,6 @@ class CheckoutController extends Controller
                 'token' => $cart->token, // Utiliza o mesmo token do carrinho
                 'shop_domain' => $shop->shopify_url,
                 'store_id' => $domain->store_id,
-                'step' => 1,
             ]
         );
 
@@ -415,7 +414,7 @@ public function cart_total_value(Request $request)
 
     $fretePrice = $checkout->frete->price;
 
-    if($fretePrice){
+    if(!isEmpty($fretePrice)){
         // e converta para centavos
         if ($fretePrice < 1) {
             $fretePrice *= 100; // Converte para centavos
