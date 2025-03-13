@@ -49,7 +49,7 @@ class AppsController extends Controller
             ], 200);
         }
 
-        $domain = Domain::where('store_id', $validated->store_id)->first();
+        $domain = Domain::where('store_id', $validated['store_id'])->first();
 
         // Cria um novo registro na tabela shopify_checkout_store
         $store = ShopifyCheckoutStore::create($validated);
