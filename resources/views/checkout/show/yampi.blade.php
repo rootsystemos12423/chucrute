@@ -506,58 +506,59 @@
                     </div>
                     
                     <script>
-                        // Definindo a função buscarDados globalmente
-                        async function buscarDados(checkoutToken) {
-                            try {
-                                const response = await fetch('/api/checkout/recive/shippiment_data', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({ checkout_token: checkoutToken })
-                                });
-                    
-                                const data = await response.json();
-                    
-                                console.log("Dados recebidos:", data);
-                    
-                                if (data.data.address) {
-                                    const form = {
-                                        cep: data.data.address.cep ?? 'N/A',
-                                        endereco: data.data.address.logradouro ?? 'N/A',
-                                        bairro: data.data.address.bairro ?? 'N/A',
-                                        localidade: data.data.address.localidade ?? 'N/A',
-                                        estado: data.data.address.uf ?? 'N/A',
-                                        numero: data.data.numero ?? 'N/A',
-                                        frete: data.frete ?? { name: 'N/A', min_delivery_days: 0, max_delivery_days: 0, price: 0.00 }
-                                    };
-                    
-                                    // Atualizando os valores diretamente na interface
-                                    document.getElementById('cep').textContent = form.cep;
-                                    document.getElementById('endereco').textContent = form.endereco;
-                                    document.getElementById('numero').textContent = form.numero;
-                                    document.getElementById('bairro').textContent = form.bairro;
-                                    document.getElementById('localidade').textContent = form.localidade;
-                                    document.getElementById('estado').textContent = form.estado;
-                    
-                                    // Formatando os dados do frete
-                                    const freteText = form.frete.name && form.frete.price >= 0 
-                                        ? `${form.frete.name} - Prazo: ${form.frete.min_delivery_days} a ${form.frete.max_delivery_days} dias - R$ ${form.frete.price.toFixed(2).replace('.', ',')}`
-                                        : 'Carregando...';
-                                    
-                                    document.getElementById('frete').textContent = freteText;
-                    
-                                } else {
-                                    console.error("Dados de endereço não encontrados.");
-                                }
-                    
-                            } catch (error) {
-                                console.error("Erro ao buscar os dados:", error);
-                            }
-                        }
-                    </script>                    
-                    
-                                                      
+                     // Definindo a função buscarDados globalmente
+                     async function buscarDados(checkoutToken) {
+                         try {
+                             const response = await fetch('/api/checkout/recive/shippiment_data', {
+                                 method: 'POST',
+                                 headers: {
+                                     'Content-Type': 'application/json'
+                                 },
+                                 body: JSON.stringify({ checkout_token: checkoutToken })
+                             });
+                 
+                             const data = await response.json();
+                 
+                             console.log("Dados recebidos:", data);
+                 
+                             if (data.data.address) {
+                                 const form = {
+                                     cep: data.data.address.cep ?? 'N/A',
+                                     endereco: data.data.address.logradouro ?? 'N/A',
+                                     bairro: data.data.address.bairro ?? 'N/A',
+                                     localidade: data.data.address.localidade ?? 'N/A',
+                                     estado: data.data.address.uf ?? 'N/A',
+                                     numero: data.data.numero ?? 'N/A',
+                                     frete: data.frete ?? { name: 'N/A', min_delivery_days: 0, max_delivery_days: 0, price: 0.00 }
+                                 };
+                 
+                                 // Atualizando os valores diretamente na interface
+                                 document.getElementById('cep').textContent = form.cep;
+                                 document.getElementById('endereco').textContent = form.endereco;
+                                 document.getElementById('numero').textContent = form.numero;
+                                 document.getElementById('bairro').textContent = form.bairro;
+                                 document.getElementById('localidade').textContent = form.localidade;
+                                 document.getElementById('estado').textContent = form.estado;
+                 
+                                 // Garantir que o preço seja um número antes de chamar toFixed
+                                 const fretePrice = parseFloat(form.frete.price) >= 0 ? parseFloat(form.frete.price).toFixed(2) : '0.00';
+                 
+                                 // Formatando os dados do frete
+                                 const freteText = form.frete.name && fretePrice >= 0 
+                                     ? `${form.frete.name} - Prazo: ${form.frete.min_delivery_days} a ${form.frete.max_delivery_days} dias - R$ ${fretePrice.replace('.', ',')}`
+                                     : 'Carregando...';
+                                 
+                                 document.getElementById('frete').textContent = freteText;
+                 
+                             } else {
+                                 console.error("Dados de endereço não encontrados.");
+                             }
+                 
+                         } catch (error) {
+                             console.error("Erro ao buscar os dados:", error);
+                         }
+                     }
+                 </script>                                                           
                     
                     
                      <div id="section_content" x-show="step === 2" class="flex flex-col justify-start">
