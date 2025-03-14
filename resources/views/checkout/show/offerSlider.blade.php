@@ -1,3 +1,4 @@
+@if($ordersBump)
 <div x-data="offerSlider()" x-init="init" class="relative w-full overflow-hidden mt-4">
   <div class="p-2 orderbump rounded-full text-center w-48 mx-auto mb-4 flex items-center animate-shake">
     <span class="text-[12px] font-bold text-[{{ $customizations['appearance_tag_color_second'] }}]">🎉 VOCÊ TEM UMA OFERTA!</span>
@@ -62,3 +63,4 @@
     </template>
   </div>
 </div>
+@endif

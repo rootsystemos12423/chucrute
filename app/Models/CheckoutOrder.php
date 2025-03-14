@@ -19,6 +19,7 @@ class CheckoutOrder extends Model
         'shipping_data',
         'payment_data',
         'external_reference',
+        'payment_method',
     ];
 
     protected $casts = [

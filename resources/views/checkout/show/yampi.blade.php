@@ -204,67 +204,53 @@
       </div>         
          <div class="w-full max-w-2xl mx-auto p-4 block sm:hidden">
             <ul class="flex items-center justify-between relative">
-                <!-- Etapa 1 -->
-                <li class="relative flex-1 flex flex-col items-center text-center">
-                  <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300" 
-                  :class="{ 'step-tag': [1, 2, 3].includes(step) }">             
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+               <!-- Etapa 1 -->
+               <li class="relative flex-1 flex flex-col items-center text-center">
+                   <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300" 
+                       :class="{ 'step-tag': step >= 1 }">             
+                       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                            <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
-                        </svg>                                         
-                    </div>
-                    <div class="mt-2 text-xs" :class="{
-                     'font-semibold text-black': step === 1,
-                     'text-gray-500': [2, 3].includes(step)
-                      }">Informações</div>
-                </li>
-        
-                <!-- Linha de conexão -->
-                <li class="flex-1 relative">
-                  <div class="absolute top-[-15px] left-[-30px] w-[150px] h-1" :class="{
-                     'bg-gray-300': step === 1,
-                     'step-tag': [2, 3].includes(step)
-                 }"></div>
-                </li>
-        
-                <!-- Etapa 2 -->
-                <li class="relative flex-1 flex flex-col items-center text-center">
-                  <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300"
-                  :class="step === 1 ? 'bg-white text-gray-500' : 'step-tag'">          
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                       </svg>                                         
+                   </div>
+                   <div class="mt-2 text-xs" :class="step === 1 ? 'font-semibold text-black' : 'text-gray-500'">Informações</div>
+               </li>
+           
+               <!-- Linha de conexão -->
+               <li class="flex-1 relative">
+                   <div class="absolute top-[-15px] left-[-30px] w-[150px] h-1" :class="step >= 2 ? 'step-tag' : 'bg-gray-300'"></div>
+               </li>
+           
+               <!-- Etapa 2 -->
+               <li class="relative flex-1 flex flex-col items-center text-center">
+                   <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300"
+                       :class="{ 'step-tag': step >= 2, 'bg-white text-gray-500': step < 2 }">          
+                       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                            <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" />
                            <path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" />
                            <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
-                        </svg>                      
-                    </div>
-                    <div class="mt-2 text-xs" :class="step === 2 ? 'text-black font-semibold' : 'text-gray-500'">Entrega</div>
-                </li>
-        
-                <!-- Linha de conexão -->
-                <li class="flex-1 relative">
-                  <div class="absolute top-[-15px] left-[-30px] w-[150px] h-1"
-                        :class="step === 3 ? 'step-tag' : 'bg-gray-300'">
-                  </div>
-              </li>
-        
-                <!-- Etapa 3 -->
-                <li class="relative flex-1 flex flex-col items-center text-center">
-                    <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300" :class="{
-                        'bg-white text-gray-500': step === 1,
-                        'bg-white text-gray-500': step === 2,
-                        'step-tag': step === 3
-                     }">
-                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                        <path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z" />
-                        <path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-7.5Zm-18 3.75a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm.75 2.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" clip-rule="evenodd" />
-                      </svg>                      
-                    </div>
-                    <div class="mt-2 text-xs text-gray-500":class="{
-                     'text-gray-500': step === 1,
-                     'text-gray-500': step === 2,
-                     'text-black font-semibold': step === 3
-                  }">Pagamento</div>
-                </li>
-            </ul>
+                       </svg>                      
+                   </div>
+                   <div class="mt-2 text-xs" :class="step === 2 ? 'text-black font-semibold' : 'text-gray-500'">Entrega</div>
+               </li>
+           
+               <!-- Linha de conexão -->
+               <li class="flex-1 relative">
+                   <div class="absolute top-[-15px] left-[-30px] w-[150px] h-1" :class="step === 3 ? 'step-tag' : 'bg-gray-300'"></div>
+               </li>
+           
+               <!-- Etapa 3 -->
+               <li class="relative flex-1 flex flex-col items-center text-center">
+                   <div class="w-10 h-10 flex items-center justify-center rounded-full z-10 transition-colors duration-300"
+                       :class="{ 'step-tag': step === 3, 'bg-white text-gray-500': step < 3 }">
+                       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                           <path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z" />
+                           <path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-7.5Zm-18 3.75a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm.75 2.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" clip-rule="evenodd" />
+                       </svg>                      
+                   </div>
+                   <div class="mt-2 text-xs" :class="step === 3 ? 'text-black font-semibold' : 'text-gray-500'">Pagamento</div>
+               </li>
+           </ul>
+           
         </div> 
          <!-- Informações Pessoais -->
          <div class="w-full flex flex-col items-center">
@@ -508,206 +494,264 @@
                         </div>
                      </div>
                      <div id="step1-summary-container" class="text-gray-500" x-show="step === 3" style="padding: 1rem; display: none; word-break: break-all">
-                        @if($checkout->steps > 2)
-                           @php
-                              // Decodificando a string JSON e acessando os dados aninhados corretamente
-                              $shippingAddress = json_decode($checkout->customer_shipping_address, true);
-                              $address = $shippingAddress['address'] ?? []; // Verificar se a chave 'address' existe
-                           @endphp
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Cep: </b> <span> {{ $address['cep'] ?? 'N/A' }} </span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Endereço: </b> <span> {{ $address['logradouro'] ?? 'N/A' }} </span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Numero: </b> <span> {{ $shippingAddress['numero'] ?? 'N/A' }} </span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Frete: </b> <span> {{ $checkout->frete->name }} - {{ $checkout->frete->min_delivery_days }} dias ou até {{ $checkout->frete->max_delivery_days }} dias - R$ {{ number_format($checkout->frete->price, 2, ',', '.') }} </span></p>
-                        @else
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Cep: </b> <span x-text="form.cep"></span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Endereço: </b> <span x-text="form.endereco"></span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Numero: </b> <span x-text="form.numero"></span></p>
-                           <p style="padding-top: 0.6rem; font-size: small"><b>Frete: </b> 
-                              <span x-text="`${form.frete.name} - ${form.frete.prazo} - R$ ${form.frete.price.toFixed(2).replace('.', ',')}`"></span>
-                           </p>
-                        @endif
-                     </div>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Cep: </b> <span id="cep"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Endereço: </b> <span id="endereco"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Numero: </b> <span id="numero"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Bairro: </b> <span id="bairro"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Cidade: </b> <span id="localidade"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Estado: </b> <span id="estado"></span></p>
+                        <p style="padding-top: 0.6rem; font-size: small"><b>Frete: </b>
+                            <span id="frete"></span>
+                        </p>
+                    </div>
+                    
+                    <script>
+                        // Definindo a função buscarDados globalmente
+                        async function buscarDados(checkoutToken) {
+                            try {
+                                const response = await fetch('/api/checkout/recive/shippiment_data', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ checkout_token: checkoutToken })
+                                });
+                    
+                                const data = await response.json();
+                    
+                                console.log("Dados recebidos:", data);
+                    
+                                if (data.data.address) {
+                                    const form = {
+                                        cep: data.data.address.cep ?? 'N/A',
+                                        endereco: data.data.address.logradouro ?? 'N/A',
+                                        bairro: data.data.address.bairro ?? 'N/A',
+                                        localidade: data.data.address.localidade ?? 'N/A',
+                                        estado: data.data.address.uf ?? 'N/A',
+                                        numero: data.data.numero ?? 'N/A',
+                                        frete: data.frete ?? { name: 'N/A', min_delivery_days: 0, max_delivery_days: 0, price: 0.00 }
+                                    };
+                    
+                                    // Atualizando os valores diretamente na interface
+                                    document.getElementById('cep').textContent = form.cep;
+                                    document.getElementById('endereco').textContent = form.endereco;
+                                    document.getElementById('numero').textContent = form.numero;
+                                    document.getElementById('bairro').textContent = form.bairro;
+                                    document.getElementById('localidade').textContent = form.localidade;
+                                    document.getElementById('estado').textContent = form.estado;
+                    
+                                    // Formatando os dados do frete
+                                    const freteText = form.frete.name && form.frete.price >= 0 
+                                        ? `${form.frete.name} - Prazo: ${form.frete.min_delivery_days} a ${form.frete.max_delivery_days} dias - R$ ${form.frete.price.toFixed(2).replace('.', ',')}`
+                                        : 'Carregando...';
+                                    
+                                    document.getElementById('frete').textContent = freteText;
+                    
+                                } else {
+                                    console.error("Dados de endereço não encontrados.");
+                                }
+                    
+                            } catch (error) {
+                                console.error("Erro ao buscar os dados:", error);
+                            }
+                        }
+                    </script>                    
+                    
+                                                      
+                    
+                    
                      <div id="section_content" x-show="step === 2" class="flex flex-col justify-start">
                         <div x-data="freteForm">
                            <section id="firstStepFrete">
                               <div class="space-y-4">
-                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">CEP</label>
-                                    <input 
-                                       type="text" 
-                                       x-model="form.cep" 
-                                       placeholder="00000-000" 
-                                       class="w-1/2 text-xs text-gray-800 bg-[#f4f6f8] w-full p-4 focus:border-black border border-gray-200 rounded-md"
-                                       @input="fetchFrete"
-                                    >
-                                    <p class="text-red-500 text-xs mt-1" x-show="errors.cep">Campo obrigatório</p>
-                                 </div>
-                           
-                                 <div x-show="!loading && freteData" class="transition-all">
-                                    <div>
-                                       <label class="block text-xs font-medium text-gray-700 mb-1">Endereço</label>
-                                       <input 
-                                          type="text" 
-                                          x-model="form.endereco" 
-                                          placeholder="Informe seu endereço sem número" 
-                                          class="w-full text-xs text-gray-800 bg-[#f4f6f8] w-full p-4 focus:border-black border border-gray-200 rounded-md"
-                                       >
-                                       <p class="text-red-500 text-xs mt-1" x-show="errors.endereco">Campo obrigatório</p>
-                                    </div>
-                           
-                                    <div class="flex space-x-4 mt-4">
-                                       <div class="w-1/3">
-                                          <label class="block text-xs font-medium text-gray-700 mb-1">Número</label>
+                                  <!-- Campo CEP -->
+                                  <div>
+                                      <label class="block text-xs font-medium text-gray-700 mb-1">CEP</label>
+                                      <input 
+                                         type="text" 
+                                         x-model="form.cep" 
+                                         placeholder="00000-000" 
+                                         class="w-1/2 text-xs text-gray-800 bg-[#f4f6f8] p-4 focus:border-black border border-gray-200 rounded-md"
+                                         @input="fetchFrete"
+                                      >
+                                      <p class="text-red-500 text-xs mt-1" x-show="errors.cep">Campo obrigatório</p>
+                                  </div>
+                          
+                                  <!-- Campos de Endereço -->
+                                  <div x-show="!loading && freteData" class="transition-all">
+                                      <div>
+                                          <label class="block text-xs font-medium text-gray-700 mb-1">Endereço</label>
                                           <input 
                                              type="text" 
-                                             x-model="form.numero" 
-                                             placeholder="100" 
-                                             class="w-full text-xs text-gray-800 bg-[#f4f6f8] w-full p-4 focus:border-black border border-gray-200 rounded-md"
+                                             x-model="form.endereco" 
+                                             placeholder="Informe seu endereço sem número" 
+                                             class="w-full text-xs text-gray-800 bg-[#f4f6f8] p-4 focus:border-black border border-gray-200 rounded-md"
                                           >
-                                          <p class="text-red-500 text-xs mt-1" x-show="errors.numero">Campo obrigatório</p>
-                                       </div>
-                                       <div class="w-2/3">
-                                          <label class="block text-xs font-medium text-gray-700 mb-1">Bairro</label>
+                                          <p class="text-red-500 text-xs mt-1" x-show="errors.endereco">Campo obrigatório</p>
+                                      </div>
+                          
+                                      <div class="flex space-x-4 mt-4">
+                                          <div class="w-1/3">
+                                              <label class="block text-xs font-medium text-gray-700 mb-1">Número</label>
+                                              <input 
+                                                 type="text" 
+                                                 x-model="form.numero" 
+                                                 placeholder="100" 
+                                                 class="w-full text-xs text-gray-800 bg-[#f4f6f8] p-4 focus:border-black border border-gray-200 rounded-md"
+                                              >
+                                              <p class="text-red-500 text-xs mt-1" x-show="errors.numero">Campo obrigatório</p>
+                                          </div>
+                                          <div class="w-2/3">
+                                              <label class="block text-xs font-medium text-gray-700 mb-1">Bairro</label>
+                                              <input 
+                                                 type="text" 
+                                                 x-model="form.bairro" 
+                                                 placeholder="Informe seu bairro" 
+                                                 class="w-full text-xs text-gray-800 bg-[#f4f6f8] p-4 focus:border-black border border-gray-200 rounded-md"
+                                              >
+                                              <p class="text-red-500 text-xs mt-1" x-show="errors.bairro">Campo obrigatório</p>
+                                          </div>
+                                      </div>
+                          
+                                      <div class="mt-4">
+                                          <label class="block text-xs font-medium text-gray-700 mb-1">Complemento</label>
                                           <input 
                                              type="text" 
-                                             x-model="form.bairro" 
-                                             placeholder="Informe seu bairro" 
-                                             class="w-full text-xs text-gray-800 bg-[#f4f6f8] w-full p-4 focus:border-black border border-gray-200 rounded-md"
+                                             x-model="form.complemento" 
+                                             placeholder="Informe seu complemento" 
+                                             class="w-full text-xs text-gray-800 bg-[#f4f6f8] p-4 focus:border-black border border-gray-200 rounded-md"
                                           >
-                                          <p class="text-red-500 text-xs mt-1" x-show="errors.bairro">Campo obrigatório</p>
-                                       </div>
-                                    </div>
-                           
-                                    <div class="mt-4">
-                                       <label class="block text-xs font-medium text-gray-700 mb-1">Complemento</label>
-                                       <input 
-                                          type="text" 
-                                          x-model="form.complemento" 
-                                          placeholder="Informe seu complemento" 
-                                          class="w-full text-xs text-gray-800 bg-[#f4f6f8] w-full p-4 focus:border-black border border-gray-200 rounded-md"
-                                       >
-                                    </div>
-                                 </div>
-                           
-                                 <div x-show="loading" class="text-xs text-gray-500">Consultando o cep...</div>
-                           
-                                 <p x-show="errors.general" class="text-red-500 text-xs mt-2" x-text="errors.general"></p>
-                           
-                                 <button 
-                                    x-show="!loading && freteData && step2Visible !== true" 
-                                    @click="submitFrete" 
-                                    class="w-full mt-4 btn-primary py-4 rounded-md font-bold text-sm transition-colors flex gap-4 justify-center items-center"
-                                 >
-                                    ESCOLHER FRETE
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                       <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                                    </svg>
-                                 </button>                              
+                                      </div>
+                                  </div>
+                          
+                                  <!-- Mensagem de carregamento -->
+                                  <div x-show="loading" class="text-xs text-gray-500">Consultando o CEP...</div>
+                          
+                                  <p x-show="errors.general" class="text-red-500 text-xs mt-2" x-text="errors.general"></p>
+                          
+                                  <!-- Botão Escolher Frete -->
+                                  <button 
+                                     x-show="!loading && freteData && !step2Visible" 
+                                     @click="submitFrete" 
+                                     class="w-full mt-4 btn-primary py-4 rounded-md font-bold text-sm transition-colors flex gap-4 justify-center items-center"
+                                  >
+                                      ESCOLHER FRETE
+                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                                      </svg>
+                                  </button>
                               </div>
-                           </section>
-                           
-                     <script>
+                          </section>
+                          
+                          <script>
                           document.addEventListener('alpine:init', () => {
-                           Alpine.data('freteForm', () => ({
-                              form: {
-                                 cep: '',
-                                 endereco: '',
-                                 numero: '',
-                                 bairro: '',
-                                 complemento: '',
-                                 frete: '',
-                                 checkoutToken: checkoutToken,
-                              },
-                              step2Visible: false,
-                              errors: {},
-                              freteData: null,
-                              loading: false,
-                              timeout: null,
-
-                              async fetchFrete() {
-                                 this.errors = {}; // Limpar os erros
-
-                                 if (!this.form.cep) {
-                                    this.errors.cep = "Campo obrigatório";
-                                    return;
-                                 }
-
-                                 clearTimeout(this.timeout);
-                                 this.loading = true;
-
-                                 this.timeout = setTimeout(async () => {
-                                    try {
+                              Alpine.data('freteForm', () => ({
+                                  form: {
+                                      cep: '',
+                                      endereco: '',
+                                      numero: '',
+                                      bairro: '',
+                                      complemento: '',
+                                      checkoutToken: checkoutToken,
+                                  },
+                                  step2Visible: false,
+                                  errors: {},
+                                  freteData: null,
+                                  loading: false,
+                          
+                                  async fetchFrete() {
+                                      this.errors = {}; 
+                          
+                                      if (!this.form.cep.trim()) {
+                                          this.errors.cep = "Campo obrigatório";
+                                          return;
+                                      }
+                          
+                                      this.loading = true;
+                                      this.freteData = null; // Resetando os dados
+                          
+                                      try {
                                           const response = await fetch('/api/checkout/shipment/cep_lookup', {
-                                             method: 'POST',
-                                             headers: { 'Content-Type': 'application/json' },
-                                             body: JSON.stringify({
-                                                checkoutToken: checkoutToken,
-                                                cep: this.form.cep
-                                             })
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ checkoutToken: this.form.checkoutToken, cep: this.form.cep })
                                           });
-
+                          
                                           if (!response.ok) throw new Error('Erro ao consultar o frete');
-
-                                          this.freteData = await response.json();
-                                          console.log('Frete Data:', this.freteData); // Verifique os dados retornados da API
-
-                                          // Preenchendo os campos apenas se a resposta for válida
-                                          if (this.freteData) {
-                                             this.form.endereco = this.freteData.logradouro || '';
-                                             this.form.bairro = this.freteData.bairro || '';
-                                             this.form.complemento = this.freteData.complemento || '';
+                          
+                                          const data = await response.json();
+                                          console.log("Resposta da API:", data);
+                          
+                                          if (data) {
+                                              this.freteData = data;
+                          
+                                              // Garantindo que os valores são atribuídos corretamente
+                                              Alpine.nextTick(() => {
+                                                  this.form.endereco = data.logradouro;
+                                                  this.form.bairro = data.bairro;
+                                                  this.form.complemento = data.complemento;
+                                              });
                                           } else {
-                                             this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
+                                              this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
                                           }
+                                      } catch (error) {
+                                          console.error("Erro na API:", error);
+                                          this.errors.general = "Erro ao buscar CEP.";
+                                      } finally {
                                           this.loading = false;
-                                    } catch (error) {
-                                          console.error(error);
-                                          this.errors.general = "Não foi possível consultar o frete. Tente novamente.";
+                                      }
+                                  },
+                          
+                                  async submitFrete() {
+                                      this.errors = {};
+                          
+                                      // Validando campos obrigatórios
+                                      if (!this.form.endereco.trim()) {
+                                          this.errors.endereco = "Campo obrigatório";
+                                      }
+                                      if (!this.form.numero.trim()) {
+                                          this.errors.numero = "Campo obrigatório";
+                                      }
+                                      if (!this.form.bairro.trim()) {
+                                          this.errors.bairro = "Campo obrigatório";
+                                      }
+                          
+                                      if (Object.keys(this.errors).length > 0) {
+                                          return;
+                                      }
+                          
+                                      this.loading = true;
+                          
+                                      try {
+                                          const response = await fetch('/api/checkout/customers/receive_customer_shipment_address', {
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ 
+                                                  address: this.freteData, 
+                                                  numero: this.form.numero, 
+                                                  checkoutToken: this.form.checkoutToken 
+                                              })
+                                          });
+                          
+                                          if (!response.ok) throw new Error('Erro ao escolher frete');
+                          
+                                          this.step2Visible = true;
+                                      } catch (error) {
+                                          console.error("Erro ao enviar endereço:", error);
+                                          this.errors.general = "Erro ao escolher frete.";
+                                      } finally {
                                           this.loading = false;
-                                    }
-                                 }, 500);
-                              },
-
-                              async submitFrete() {
-                                 this.loading = true;
-
-                                 // Enviar os dados para o endpoint de frete
-                                 try {
-                                    const response = await fetch('/api/checkout/customers/receive_customer_shipment_address', {
-                                       method: 'POST',
-                                       headers: {
-                                          'Content-Type': 'application/json',
-                                       },
-                                       body: JSON.stringify({
-                                          address: this.freteData,
-                                          numero: this.form.numero,
-                                          complemento: this.form.complemento, // Adiciona o campo numero
-                                          checkoutToken: checkoutToken,
-                                       }),
-                                    });
-
-                                    if (!response.ok) {
-                                       throw new Error('Erro ao escolher frete');
-                                    }
-
-                                    // Se o envio for bem-sucedido, você pode manipular a resposta conforme necessário
-                                    const responseData = await response.json();
-                                    console.log('Resposta do envio de frete:', responseData);
-
-                                    // Correção para atribuir o valor de step2Visible
-                                    this.step2Visible = true;
-
-                                    // Exemplo de redirecionamento ou próxima ação
-                                 } catch (error) {
-                                    console.error(error);
-                                    this.errors.general = "Não foi possível escolher o frete. Tente novamente.";
-                                 } finally {
-                                    this.loading = false;
-                                 }
-                              },
-                           }));
-                        });
-                     </script>                           
+                                      }
+                                  },
+                              }));
+                          });
+                          </script>
+                          
+                          <script>
+                           document.addEventListener('DOMContentLoaded', async () => {
+                                 await  buscarDados(checkoutToken); // Carrega os itens do carrinho ao iniciar
+                              });
+                          </script>
                        
                            <section id="SecondSection" 
                                  x-data="{
@@ -742,6 +786,7 @@
                                           .then(response => response.json())
                                           .then(data => {
                                              console.log('Frete selecionado:', data);
+                                             buscarDados(checkoutToken);
                                              this.step++;
                                              calculateTotal(checkoutToken);
                                           })
@@ -790,80 +835,7 @@
                        
                      </div>
                   </section>
-                  <script>
-                     function checkoutForm() {
-                         return {
-                             form: {
-                                 cep: '',
-                                 endereco: '',
-                                 numero: '',
-                                 complemento: '',
-                                 bairro: '',
-                                 checkoutToken: checkoutToken,
-                                 frete: '', // O frete será salvo aqui
-                             },
-                             errors: {
-                                 cep: false,
-                                 endereco: false,
-                                 numero: false,
-                                 bairro: false,
-                             },
-                             async submitForm() {
-                                 // Resetando os erros
-                                 this.errors = {
-                                     cep: !this.form.cep.trim(),
-                                     endereco: !this.form.endereco.trim(),
-                                     numero: !this.form.numero.trim(),
-                                     bairro: !this.form.bairro.trim(),
-                                 };
-                     
-                                 // Se houver erros, não envia o formulário
-                                 if (Object.values(this.errors).some(error => error)) {
-                                     console.warn('Erro no formulário:', this.errors);
-                                     return;
-                                 }
-                     
-                                 // Verifica qual frete foi selecionado
-                                 const freteSelecionado = document.querySelector('input[name="frete"]:checked');
-                                 if (freteSelecionado) {
-                                     this.form.frete = freteSelecionado.value;
-                                 } else {
-                                     alert('Selecione uma forma de envio.');
-                                     return;
-                                 }
-                     
-                                 try {
-                                     console.log('Enviando dados...', this.form);
-                     
-                                     const response = await fetch('/api/checkout/customers/receive_customer_shipment_address', {
-                                         method: 'POST',
-                                         headers: {
-                                             'Content-Type': 'application/json',
-                                             'Accept': 'application/json',
-                                             'X-CSRF-Token': csrfToken, // Certifique-se de que essa variável está definida
-                                         },
-                                         body: JSON.stringify(this.form),
-                                     });
-                     
-                                     const data = await response.json();
-                     
-                                     if (!response.ok) {
-                                         console.error('Erro ao enviar os dados:', data);
-                                         alert(data.message || 'Erro ao enviar os dados.');
-                                         return;
-                                     }
-                     
-                                     console.log('Resposta recebida:', data);
-                                     this.step++;
-                     
-                                 } catch (error) {
-                                     console.error('Erro na requisição:', error);
-                                     alert('Erro ao conectar ao servidor. Tente novamente.');
-                                 }
-                             }
-                         };
-                     }
-                  </script>  
+
                </div>
 
 

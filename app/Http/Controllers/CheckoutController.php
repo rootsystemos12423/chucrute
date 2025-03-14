@@ -62,6 +62,8 @@ class CheckoutController extends Controller
 
     $checkout = Checkout::where('token', $cart_token)->first();
 
+    $ordersBump = OrderBump::where('store_id', $checkout->store_id)->first();
+
     $payment_discount_pix = CheckoutsPaymentDiscount::where('store_id', $checkout->store_id)->where('payment_method', 'pix')->first();
     $payment_discount_credit_card = CheckoutsPaymentDiscount::where('store_id', $checkout->store_id)->where('payment_method', 'credit_card')->first();
      // Inicializando a variável para armazenar o valor total
@@ -92,14 +94,16 @@ class CheckoutController extends Controller
         $customizations = $customizations ? json_decode($customizations->settings, true) : [];
     }
 
-    return view('checkout.show.yampi', compact('checkout', 'totalValue', 'customizations', 'freteValue', 'payment_discount_pix', 'payment_discount_credit_card'));
+    return view('checkout.show.yampi', compact('checkout', 'totalValue', 'customizations', 'freteValue', 'payment_discount_pix', 'payment_discount_credit_card', 'ordersBump'));
 }
 
     public function shopify_cart_payload(Request $request)
     {
         $data = $request->all();
 
-        $domain = $request->getHost();
+        // $domain = $request->getHost();
+
+        $domain = 'checkout.mercadoofertas.com';
 
         $domain = Domain::where('domain', $domain)->first();
 
@@ -1020,6 +1024,7 @@ public function list_shippiment_methods(Request $request)
             // Converte a resposta para JSON
             $responseData = $response->json();
 
+            return $responseData;
 
             return response()->json([
                 'success' => true,
@@ -1097,6 +1102,19 @@ public function list_shippiment_methods(Request $request)
         $items = $order->checkout->cart->items;
 
         return view('checkout.show.complete', compact('order', 'customizations', 'order_customer_data', 'items', 'order_shipping_data'));
+    }
+
+
+    public function search_shippiment_data(Request $request){
+
+        $checkout = Checkout::where('token', $request->checkout_token)->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => json_decode($checkout->customer_shipping_address),
+            'frete' => $checkout->frete,
+        ], 200);
+
     }
 
 }

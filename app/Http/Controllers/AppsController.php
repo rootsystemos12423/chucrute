@@ -51,6 +51,12 @@ class AppsController extends Controller
 
         $domain = Domain::where('store_id', $validated['store_id'])->first();
 
+        if(!$domain){
+            return response()->json([
+                'message' => 'Dominio Não Cadastrado',
+            ], 400);
+        }
+
         // Cria um novo registro na tabela shopify_checkout_store
         $store = ShopifyCheckoutStore::create($validated);
 

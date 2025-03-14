@@ -64,4 +64,18 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+             Store::create([
+                    'user_id' => $user->id,
+                    'name' => 'Loja Teste',
+                    'currency' => 'BRL',
+                    'settings' => 'default'
+                ]);
+        });        
+    }
 }

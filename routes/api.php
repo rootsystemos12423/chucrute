@@ -30,5 +30,6 @@ Route::post('checkout/shipment/cep_lookup', [CheckoutController::class, 'cep_loo
 Route::post('checkout/list/items', [CheckoutController::class, 'getCartItems']);
 Route::post('checkout/list/list_shippiment_methods', [CheckoutController::class, 'list_shippiment_methods']);
 Route::post('checkout/recive/recive_selected_shippiment_method', [CheckoutController::class, 'recive_selected_shippiment_method']);
+Route::post('checkout/recive/shippiment_data', [CheckoutController::class, 'search_shippiment_data']);
 Route::post('checkout/payment/generatePixPayment', [CheckoutController::class, 'generatePixPayment'])->name('generate.pixpayment');      
 Route::post('checkout/payment/processCardPayment', [CheckoutController::class, 'processCardPayment']);    

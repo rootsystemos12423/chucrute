@@ -1,4 +1,5 @@
 <x-app-layout>
+    <x-alert-pop-up />
       <div class="flex flex-col w-full px-2 pt-3 h-max xl:overflow-hidden">
         <form novalidate="" class="flex flex-col gap-10">
           <div class="flex flex-col gap-10">
@@ -108,13 +109,12 @@
               <script>
                 document.addEventListener('alpine:init', () => {
                     Alpine.data('shopifyForm', () => ({
-                        // Pega os valores do backend, mas permite edição na view
                         shopify_url: '{{ $shopify->shopify_url ?? '' }}',
                         shopify_api_token: '{{ $shopify->shopify_api_token ?? '' }}',
                         shopify_api_key: '{{ $shopify->shopify_api_key ?? '' }}',
                         shopify_api_secret: '{{ $shopify->shopify_api_secret ?? '' }}',
                         status: 'active',
-            
+                
                         init() {
                             this.$nextTick(() => {
                                 console.log('Alpine iniciado');
@@ -125,8 +125,10 @@
                                 this.$watch('status', value => console.log('status alterado para:', value));
                             });
                         },
-            
+                
                         submitForm() {
+                            showLoading("Enviando dados...");
+                
                             const formData = {
                                 shopify_url: this.shopify_url,
                                 shopify_api_token: this.shopify_api_token,
@@ -135,9 +137,9 @@
                                 status: this.status,
                                 store_id: {{ session('store_id') }},
                             };
-            
+                
                             const csrfToken = this.$refs.csrfToken?.value ?? '';
-            
+                
                             fetch('/api/store/shopify/credentials', {
                                 method: 'POST',
                                 headers: {
@@ -150,27 +152,25 @@
                             .then(response => response.json()) 
                             .then(data => {
                                 if (data.message === 'Shopify checkout store created successfully!') {
-                                    alert('Formulário enviado com sucesso!');
+                                    showSuccess('Operação concluída!');
                                     console.log(data);
                                 } else {
                                     console.error('Erro:', data);
-                                    alert('Erro ao enviar o formulário.');
+                                    showError("Erro ao enviar o formulário.");
                                 }
                             })
                             .catch(error => {
-                                console.error('Erro ao processar a resposta:', error);
+                                showError("Erro inesperado ao enviar o formulário.");
                             });
                         }
                     }));
                 });
-            </script>            
+                </script>
             
-              
-
           </div>
         </form>
         <div class="pt-16"></div>
       </div>
-    
+
     </x-app-layout>
     
