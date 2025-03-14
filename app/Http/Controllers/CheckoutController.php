@@ -101,9 +101,7 @@ class CheckoutController extends Controller
     {
         $data = $request->all();
 
-        // $domain = $request->getHost();
-
-        $domain = 'checkout.mercadoofertas.com';
+        $domain = $request->getHost();
 
         $domain = Domain::where('domain', $domain)->first();
 
