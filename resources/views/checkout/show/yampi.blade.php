@@ -470,8 +470,7 @@
                      'bg-white bg-opacity-40': step === 1,
                      'bg-white': step === 2,
                      'bg-[#f9fdf7]': step === 3
-                   }"
-                  x-data="checkoutForm()">
+                   }">
                      <div class="flex gap-2 justify-between items-start pb-2">
                         <div class="flex items-start gap-2">
                            <span class="rounded-full w-4 h-4 font-extrabold text-xs justify-center p-3 flex items-center" :class="{
