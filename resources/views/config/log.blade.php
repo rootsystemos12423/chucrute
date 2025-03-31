@@ -52,7 +52,7 @@
   
                       <!-- Botão Voltar -->
                       <div class="mt-6">
-                          <a href="route('logs')" class="p-2 bg-pink-500 text-white font-bold ">
+                          <a href="{{ route('logs') }}" class="p-2 bg-pink-500 text-white font-bold ">
                               Voltar para a lista
                           </a>
                       </div>
