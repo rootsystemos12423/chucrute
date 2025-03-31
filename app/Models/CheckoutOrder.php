@@ -44,4 +44,9 @@ class CheckoutOrder extends Model
     {
         return $this->belongsTo(Checkout::class, 'checkout_token', 'token');
     }
+
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class, 'checkout_token', 'token');
+    }
 }

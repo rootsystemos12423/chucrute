@@ -10,6 +10,18 @@
       @vite(['resources/css/app.css', 'resources/js/app.js'])
       <!-- Styles -->
       @livewireStyles
+
+      @foreach ($gPixels as $pixel)
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ $pixel->conversion_id }}">
+      </script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+      
+        gtag('config', '{{ $pixel->conversion_id }}');
+      </script>
+      @endforeach
 </head>
 @php
     $paymentData = json_decode($order->payment_data, true);
@@ -149,7 +161,7 @@
               @if(isset($customizations['cabecalho_logo_path']) && $customizations['cabecalho_logo_path'])
               <img class="max-w-[100px] h-full" src="{{ asset($customizations['cabecalho_logo_path']) }}" alt="Loja Logo">
               @else
-                    <h1 class="text-xl font-extrabold p-2">BEOUT</h1>
+                    <h1 class="text-xl font-extrabold p-2">{{ $order->store->name }}</h1>
               @endif           
            </div>
            <div>
@@ -266,7 +278,7 @@
                         <p class="mt-4 text-lg text-gray-800">Valor do Pix: <span class="text-[#44c485] font-bold">R$ {{ number_format($order->total_value / 100, 2, ',', '.') }}</span></p>
 
                         <div class="relative flex flex-col items-center w-2/3">
-                            <button data-pix-code="00020126330014BR.GOV.BCB.PIX0114+55819999999965204000053039865406516.755802BR" 
+                            <button data-pix-code="{{ $paymentData['url'] }}" 
                                 class="copyPixCode px-6 py-3 mt-4 mb-4 rounded-md text-white bg-[#36b376] text-md font-semibold flex items-center justify-center relative">
                                 <img class="mr-3" src="https://awesome-assets.yampi.me/checkout/build/mix/assets/img/icons/copy-paste.svg" alt=""> Copiar código
                             </button>
@@ -301,7 +313,7 @@
         </div>
     </div>
     
-    <footer class="bg-white text-white py-12 mt-2 w-full">
+    <footer class="bg-[{{$customizations['rodape_cor_rodape']}}] text-[{{$customizations['rodape_cor_text']}}] py-12 mt-30 w-full">
         <div class="container mx-auto px-6">
             <!-- Seção de Links -->
             <div class="flex flex-col text-center justify-center items-center p-4 text-gray-600 text-sm">
@@ -320,8 +332,10 @@
              </div>                 
             </div>
             <div class="mt-2 text-gray-600 text-xs flex flex-col justify-center items-center text-center">
-              <span>Deolane Beauty: deolanebeauty.com.br</span>
-              <span>© 2025 D & G COMERCIO EM GERAL LTDA CNPJ: 51.166.095/0001-59</span>
+              @if(isset($customizations['rodape_cnpj']))
+              <span>{{ $checkout->store->name }}: {{ $checkout->shop->origin }}</span>
+              <span>© 2025 {{ $customizations['rodape_razao_social'] }} CNPJ: {{ $customizations['rodape_cnpj'] }}</span>
+              @endif
               <div class="mt-4">
                  <svg class="fill-gray-600" width="89" height="19" viewBox="0 0 89 19" fill="#898792" xmlns="http://www.w3.org/2000/svg">
                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.75 14.1875V8.5C9.75 8.05127 9.38623 7.6875 8.9375 7.6875L2.4375 7.6875C1.98877 7.6875 1.625 8.05127 1.625 8.5L1.625 14.1875C1.625 14.6362 1.98877 15 2.4375 15H8.9375C9.38623 15 9.75 14.6362 9.75 14.1875ZM11.375 8.5V14.1875C11.375 15.5337 10.2837 16.625 8.9375 16.625H2.4375C1.09131 16.625 -5.8844e-08 15.5337 0 14.1875L2.48609e-07 8.5C3.07453e-07 7.15381 1.09131 6.0625 2.4375 6.0625L8.9375 6.0625C10.2837 6.0625 11.375 7.15381 11.375 8.5Z"></path>
@@ -388,5 +402,25 @@
         
     @stack('modals')
     @livewireScripts
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        // Supondo que você tenha a external_reference do pedido (por exemplo, a partir de um valor já disponível no seu front-end)
+        var externalReference = '{{ $order->external_reference }}'; // Substitua por como você obtém isso (pode ser um valor do Laravel Blade ou variável JS)
+
+        var pusher = new Pusher('2696d3838d296fdd359e', {
+            cluster: 'sa1'
+        });
+    
+        // Use a externalReference para assinar o canal dinâmico
+        var channel = pusher.subscribe('webhooks_' + externalReference);
+    
+        // Escutar o evento "purchase"
+        channel.bind('purchase', function(data) {
+            url = '/checkout/payment/completed/' + data.external_reference;
+            window.location.href = url;
+        });
+    </script>
+    
+    
 </body>
 </html>

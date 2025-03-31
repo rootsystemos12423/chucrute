@@ -15,9 +15,14 @@ class OrdersController extends Controller
         return view('orders.index', compact('orders', 'count'));
     }
 
-    public function show(){
+    public function show($id){
 
-        return view('orders.show');
+        $order = CheckoutOrder::find($id);
+
+        $order_customer_data = $order->customer_data ? json_decode($order->customer_data, true) : [];
+        $order_shipping_data = $order->shipping_data ? json_decode($order->shipping_data, true) : [];
+
+        return view('orders.show', compact('order', 'order_customer_data', 'order_shipping_data'));
     }
 
     public function recover_carts(){

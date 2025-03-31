@@ -16,7 +16,12 @@ use Illuminate\Support\Facades\Http;
 use App\Models\CheckoutCustomizationSetting;
 use Illuminate\Support\Facades\Log;
 use App\Models\CheckoutOrder;
+use App\Models\Gateway;
 use Carbon\Carbon;
+use App\Models\GoogleAdsPixel;
+use App\Mail\OrderGeneratedMail;
+use App\Mail\OrderPaidMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class CheckoutController extends Controller
@@ -47,13 +52,21 @@ class CheckoutController extends Controller
     }
     
     public function indexPagamentos(){
+        
+        $gateway = Gateway::where('store_id', session('store_id'))->first();
 
-        return view('checkout.pagamento');
+        if(!$gateway){
+            $gateway = null;
+        }
+
+        return view('checkout.pagamento', compact('gateway'));
     }
 
     public function indexGatewayConfig($name){
 
-        return view('checkout.gatewayconfig');
+        $gateway = Gateway::where('store_id', session('store_id'))->where('name', $name)->first();
+
+        return view('checkout.gatewayconfig', compact('gateway'));
     }
 
     public function show(Request $request)
@@ -61,6 +74,14 @@ class CheckoutController extends Controller
     $cart_token = $request->cookie('checkout_token');
 
     $checkout = Checkout::where('token', $cart_token)->first();
+
+    if(!$checkout){
+
+        return 'Checkout Não Encontrado';
+
+    }
+
+    $gPixels = GoogleAdsPixel::where('store_id', $checkout->store_id)->get() ?? null;
 
     $ordersBump = OrderBump::where('store_id', $checkout->store_id)->first();
 
@@ -94,7 +115,7 @@ class CheckoutController extends Controller
         $customizations = $customizations ? json_decode($customizations->settings, true) : [];
     }
 
-    return view('checkout.show.yampi', compact('checkout', 'totalValue', 'customizations', 'freteValue', 'payment_discount_pix', 'payment_discount_credit_card', 'ordersBump'));
+    return view('checkout.show.yampi', compact('checkout', 'totalValue', 'customizations', 'freteValue', 'payment_discount_pix', 'payment_discount_credit_card', 'ordersBump', 'gPixels'));
 }
 
     public function shopify_cart_payload(Request $request)
@@ -167,6 +188,7 @@ class CheckoutController extends Controller
                 'token' => $cart->token, // Utiliza o mesmo token do carrinho
                 'shop_domain' => $shop->shopify_url,
                 'store_id' => $domain->store_id,
+                'steps' => 0,
             ]
         );
 
@@ -187,6 +209,14 @@ class CheckoutController extends Controller
         
         // Criando o cookie corretamente
         $cookie = Cookie::make('checkout_token', $token . '?key=' . $key, 240);  // 240 minutos de duração
+
+        $checkout = Checkout::where('token', $token . '?key=' . $key)->first();
+        
+        if($checkout->steps === 0){
+            $checkout->steps = 1;
+        }
+        
+        $checkout->save();
     
         // Redireciona para a rota 'show.checkoout' com o cookie anexado
         return redirect()->route('show.checkoout')->cookie($cookie);
@@ -749,11 +779,13 @@ public function list_shippiment_methods(Request $request)
         // Decodifica 'settings' para array, garantindo que não seja null
         $customizations = $customizations ? json_decode($customizations->settings, true) : [];
 
+        $gPixels = GoogleAdsPixel::where('store_id', $order->store_id)->get() ?? null;
+
         if(!$order){
             abort(404);
         }
 
-        return view('checkout.show.pix', compact('order', 'customizations'));
+        return view('checkout.show.pix', compact('order', 'customizations', 'gPixels'));
     }
 
 
@@ -787,6 +819,18 @@ public function list_shippiment_methods(Request $request)
 
             $totalPrice = $totalItemsPrice + $shippingFee;
 
+            $payment_discount_pix = CheckoutsPaymentDiscount::where('store_id', $checkout->store_id)
+                ->where('payment_method', 'pix')
+                ->first();
+
+           if ($payment_discount_pix) {
+                // Calcula o desconto em centavos (mantendo precisão)
+                $discountValue = intval($totalPrice * $payment_discount_pix->discount_percentage / 100);
+                
+                // Subtrai o desconto
+                $totalPrice -= $discountValue;
+            }
+
             $shippingAddress = is_string($checkout->customer_shipping_address) 
                 ? json_decode($checkout->customer_shipping_address, true) // Decodifica a string JSON para um array
                 : $checkout->customer_shipping_address;
@@ -808,7 +852,7 @@ public function list_shippiment_methods(Request $request)
                 "dueDate" => Carbon::tomorrow()->format('Y-m-d'),
                 "description" => "Pagamento Gerado Checkout Adoorei",
                 "externalReference" => $externalReference,
-                "postbackUrl" => "https://meusistema.com/webhook/pagamento",
+                "postbackUrl" => env('APP_URL').'/api/webhook',
                 "traceable" => true,
                 "pix" => [
                     "expiresInDays" => 1
@@ -819,7 +863,7 @@ public function list_shippiment_methods(Request $request)
                     "address" => [
                         "street" => $shippingAddress['address']['logradouro'], // Acessa 'logradouro'
                         "streetNumber" => $shippingAddress['numero'],
-                        "complement" => $shippingAddress['complemento'],
+                        "complement" => $shippingAddress['complemento'] ?? '',
                         "zipCode" => $shippingAddress['address']['cep'],
                         "neighborhood" => $shippingAddress['address']['bairro'],
                         "city" => $shippingAddress['address']['localidade'],
@@ -847,6 +891,27 @@ public function list_shippiment_methods(Request $request)
                     'Content-Type' => 'application/json',
                     'Authorization' => $authorizationHeader // Aqui está o Authorization codificado
                 ])->post('https://sandbox.pay2w.com/transactions', $data);
+           }else{
+
+                $gateway = Gateway::where('status', 'active')->where('store_id', $checkout->store_id)->first();
+
+                $clientId = $gateway->client_id; // Recupera o CLIENT_ID da variável de ambiente
+                $secretKey = $gateway->secret_key; // Recupera o SECRET_KEY da variável de ambiente
+
+                // Combina o CLIENT_ID e SECRET_KEY no formato "CLIENT_ID:SECRET_KEY"
+                $authString = $clientId . ':' . $secretKey;
+
+                // Codifica a string em base64
+                $encodedAuthString = base64_encode($authString);
+
+                // Agora, monta o valor do header Authorization com "Basic" seguido do valor codificado
+                $authorizationHeader = 'Basic ' . $encodedAuthString;
+
+                // Usando na requisição
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => $authorizationHeader // Aqui está o Authorization codificado
+                ])->post('https://api.pay2w.com/transactions', $data);
            }
             
             // Converte a resposta para JSON
@@ -866,6 +931,8 @@ public function list_shippiment_methods(Request $request)
                 'payment_data' => json_encode($responseData['pix']),
                 'external_reference' => $externalReference,
             ]);
+
+            Mail::to($checkout->customer_email)->send(new OrderGeneratedMail($checkoutOrder));
 
             return response()->json([
                 'success' => true,
@@ -972,7 +1039,7 @@ public function list_shippiment_methods(Request $request)
                 "dueDate" => Carbon::tomorrow()->format('Y-m-d'),
                 "description" => "Pagamento Gerado Checkout Adoorei",
                 "externalReference" => $externalReference,
-                "postbackUrl" => "https://meusistema.com/webhook/pagamento",
+                "postbackUrl" => env('APP_URL').'/api/webhook',
                 "traceable" => true,
                 "card" => [
                     "id" => $externalReference,
@@ -988,7 +1055,7 @@ public function list_shippiment_methods(Request $request)
                     "address" => [
                         "street" => $shippingAddress['address']['logradouro'], // Acessa 'logradouro'
                         "streetNumber" => $shippingAddress['numero'],
-                        "complement" => $shippingAddress['complemento'],
+                        "complement" => $shippingAddress['complemento'] ?? '',
                         "zipCode" => $shippingAddress['address']['cep'],
                         "neighborhood" => $shippingAddress['address']['bairro'],
                         "city" => $shippingAddress['address']['localidade'],
@@ -998,6 +1065,7 @@ public function list_shippiment_methods(Request $request)
                 ],
                 "installments" => $cardData['installments'],
             ];    
+
 
            if(env('APP_ENV') === 'local'){
                 $clientId = env('SANDBOX_CLIENT_ID'); // Recupera o CLIENT_ID da variável de ambiente
@@ -1017,60 +1085,84 @@ public function list_shippiment_methods(Request $request)
                     'Content-Type' => 'application/json',
                     'Authorization' => $authorizationHeader // Aqui está o Authorization codificado
                 ])->post('https://sandbox.pay2w.com/transactions', $data);
-           }
+           }else{
+
+            $gateway = Gateway::where('status', 'active')->where('store_id', $checkout->store_id)->first();
+
+            $clientId = $gateway->client_id; // Recupera o CLIENT_ID da variável de ambiente
+            $secretKey = $gateway->secret_key; // Recupera o SECRET_KEY da variável de ambiente
+
+            // Combina o CLIENT_ID e SECRET_KEY no formato "CLIENT_ID:SECRET_KEY"
+            $authString = $clientId . ':' . $secretKey;
+
+            // Codifica a string em base64
+            $encodedAuthString = base64_encode($authString);
+
+            // Agora, monta o valor do header Authorization com "Basic" seguido do valor codificado
+            $authorizationHeader = 'Basic ' . $encodedAuthString;
+
+            // Usando na requisição
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $authorizationHeader // Aqui está o Authorization codificado
+            ])->post('https://api.pay2w.com/transactions', $data);
+       }
             
             // Converte a resposta para JSON
             $responseData = $response->json();
 
-            return $responseData;
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Dados de pagamento',
-                'data' => $responseData
-            ], 200);
-
-            if($responseData['message'] === 'Payment failed'){
+            if($responseData['status'] !== 'refused'){
                 // Criar o pedido no banco de dados
                 $checkoutOrder = CheckoutOrder::create([
                     'payment_method' => 'credit_card',
                     'store_id' => $checkout->store_id,
                     'checkout_token' => $checkout->token,
-                    'status' => 'failed',
+                    'status' => 'refused',
                     'total_value' => $data['value'], // Salva o valor diretamente
                     'installments' => $data['installments'],
                     'customer_data' => json_encode($data['customer']),
                     'items' => json_encode($data['items']),
                     'shipping_data' => json_encode($data['shipping']),
-                    'payment_data' => json_encode($responseData['data']),
+                    'payment_data' => json_encode([
+                        'card' => $data['card'],
+                        'error_reason' => $responseData['refusedReason'] ?? null, // Certifique-se de que `reason` existe
+                    ]),
                     'external_reference' => $externalReference,
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $responseData['errors']['reason'],
+                    'approved' => false,
+                    'message' => $responseData['refusedReason'],
                 ], 400);
             }
+            elseif($responseData['status'] !== 'paid' || $responseData['status'] !== 'authorized'){
+                 // Criar o pedido no banco de dados
+                $checkoutOrder = CheckoutOrder::create([
+                    'payment_method' => 'credit_card',
+                    'store_id' => $checkout->store_id,
+                    'checkout_token' => $checkout->token,
+                    'status' => 'paid',
+                    'total_value' => $data['value'], // Salva o valor diretamente
+                    'installments' => $data['installments'],
+                    'customer_data' => json_encode($data['customer']),
+                    'items' => json_encode($data['items']),
+                    'shipping_data' => json_encode($data['shipping']),
+                    'payment_data' => json_encode([
+                        'card' => $data['card'],
+                        'hash' => $responseData['card']['hash'] ?? null, // Certifique-se de que `reason` existe
+                    ]),
+                    'external_reference' => $externalReference,
+                ]);
 
-            // Criar o pedido no banco de dados
-            $checkoutOrder = CheckoutOrder::create([
-                'store_id' => $checkout->store_id,
-                'checkout_token' => $checkout->token,
-                'status' => 'pending',
-                'total_value' => $responseData['amount'], // Salva o valor diretamente
-                'installments' => 1,
-                'customer_data' => json_encode($data['customer']),
-                'items' => json_encode($data['items']),
-                'shipping_data' => json_encode($data['shipping']),
-                'payment_data' => json_encode($responseData['pix']),
-                'external_reference' => $externalReference,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pagamento PIX gerado com sucesso!',
-                'redirect_url' => route('finalization.checkout', ['external_reference' => $externalReference]),
-            ], 200);        
+                return response()->json([
+                    'success' => true,
+                    'approved' => true,
+                    'message' => 'Pagamento efetuado com sucesso!',
+                    'redirect_url' => route('complete.checkout', ['external_reference' => $externalReference]),
+                ], 200); 
+            }
+                  
 
         } catch (\Exception $e) {
             return response()->json([
@@ -1088,6 +1180,8 @@ public function list_shippiment_methods(Request $request)
 
         $customizations = CheckoutCustomizationSetting::where('store_id', $order->store_id)->first();
     
+        $gPixels = GoogleAdsPixel::where('store_id', $order->store_id)->get() ?? null;
+
         // Decodifica 'settings' para array, garantindo que não seja null
         $customizations = $customizations ? json_decode($customizations->settings, true) : [];
 
@@ -1099,7 +1193,7 @@ public function list_shippiment_methods(Request $request)
         $order_shipping_data = $order->shipping_data ? json_decode($order->shipping_data, true) : [];
         $items = $order->checkout->cart->items;
 
-        return view('checkout.show.complete', compact('order', 'customizations', 'order_customer_data', 'items', 'order_shipping_data'));
+        return view('checkout.show.complete', compact('order', 'customizations', 'order_customer_data', 'items', 'order_shipping_data', 'gPixels'));
     }
 
 
@@ -1111,6 +1205,73 @@ public function list_shippiment_methods(Request $request)
             'success' => true,
             'data' => json_decode($checkout->customer_shipping_address),
             'frete' => $checkout->frete,
+        ], 200);
+
+    }
+
+    public function storeGatewayCredentials(Request $request)
+    {
+
+        $request->validate([
+            'client_id' => 'required|string',
+            'secret_key' => 'required|string',
+            'enable_credit_card' => 'nullable',
+            'enable_pix' => 'nullable',
+            'enable_boleto' => 'nullable',
+            'enable_custom_interest_rate' => 'nullable',
+            'additional_interest_rate' => 'nullable|numeric|min:0',
+            'interest_rule' => 'nullable|string',
+        ]);
+
+
+        $gateway = Gateway::where('store_id', session('store_id'))->where('name', 'pay2win')->first();
+
+        if (!$gateway) {
+            // Criando um novo gateway
+            Gateway::create([
+                'name' => 'pay2win',
+                'store_id' => session('store_id'),
+                'client_id' => $request->client_id,
+                'secret_key' => $request->secret_key,
+                'enable_credit_card' => $request->boolean('enable_credit_card'),
+                'enable_pix' => $request->boolean('enable_pix'),
+                'enable_boleto' => $request->boolean('enable_boleto'),
+                'enable_custom_interest_rate' => $request->boolean('enable_custom_interest_rate'),
+                'additional_interest_rate' => $request->additional_interest_rate,
+                'interest_rule' => $request->interest_rule,
+            ]);
+        } else {
+            // Atualizando os dados do gateway existente
+            $gateway->update([
+                'client_id' => $request->client_id,
+                'secret_key' => $request->secret_key,
+                'enable_credit_card' => $request->boolean('enable_credit_card'),
+                'enable_pix' => $request->boolean('enable_pix'),
+                'enable_boleto' => $request->boolean('enable_boleto'),
+                'enable_custom_interest_rate' => $request->boolean('enable_custom_interest_rate'),
+                'additional_interest_rate' => $request->additional_interest_rate,
+                'interest_rule' => $request->interest_rule,
+            ]);
+        }
+
+        return redirect()->route('gatewayconfig', ['gateway' => 'pay2win'])->with('success', 'Gateway salvo com sucesso!');
+        
+
+    }
+
+    public function shipping_get_list(Request $request){
+        $checkout = Checkout::where('token', $request->checkoutToken)->first();
+
+        if(!$checkout){
+            return response()->json([
+                'success' => false,
+                'message' => 'Checkout Ou Frete não encontrados.',
+            ], 200); 
+        }
+
+        return response()->json([
+            'success' => true,
+            'frete' => $checkout->frete->price,
         ], 200);
 
     }

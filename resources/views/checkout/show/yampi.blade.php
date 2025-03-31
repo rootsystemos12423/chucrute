@@ -17,6 +17,17 @@
       <script>
          var csrfToken = "{{ csrf_token() }}"; // Obtendo o CSRF token diretamente do Blade
       </script>        
+       @foreach ($gPixels as $pixel)
+       <script async src="https://www.googletagmanager.com/gtag/js?id={{ $pixel->conversion_id }}">
+       </script>
+       <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+       
+         gtag('config', '{{ $pixel->conversion_id }}');
+       </script>
+       @endforeach
       <!-- Scripts -->
       @vite(['resources/css/app.css', 'resources/js/app.js'])
       <!-- Styles -->
@@ -24,9 +35,9 @@
    </head>
    @if($checkout)
    <body class="bg-gray-100 font text-white overflow-x-hidden antialiased">
+      <x-alert-pop-up />
       <script>
          const checkoutToken = "{{ $checkout->cart->token }}";
-         console.log('checkoutToken:', checkoutToken);
       </script>
       <style>
          body{
@@ -517,9 +528,7 @@
                              });
                  
                              const data = await response.json();
-                 
-                             console.log("Dados recebidos:", data);
-                 
+                                  
                              if (data.data.address) {
                                  const form = {
                                      cep: data.data.address.cep ?? 'N/A',
@@ -765,7 +774,6 @@
                                           })
                                           .then(response => response.json())
                                           .then(data => {
-                                             console.log('Fretes carregados:', data);
                                              this.fretes = data;
                                           })
                                           .catch(error => console.error('Erro ao buscar fretes:', error));
@@ -789,6 +797,7 @@
                                              buscarDados(checkoutToken);
                                              this.step++;
                                              calculateTotal(checkoutToken);
+                                             fetchFrete(checkoutToken);
                                           })
                                           .catch(error => console.error('Erro ao enviar frete:', error));
                                     }
@@ -863,7 +872,7 @@
                   <div id="data-lead-checkout" x-show="step === 3" class="flex flex-col justify-start gap-3 max-w-full">
                      <!-- CARD FORM -->
                      <div class="p-4 rounded-lg max-w-full md:max-w-[350px]" :class="paymentMethod === 'card' ? 'border-2 border-[{{ $customizations['appearance_tag_color_second'] }}] bg-gray-50' : 'border border-gray-400'">
-                        <div @click="paymentMethod = 'card'" class="flex flex-col gap-2 items-start cursor-pointer max-w-full md:max-w-[350px]">
+                        <div @click="paymentMethod = 'card', selecionarMetodoPagamento('cartao')" class="flex flex-col gap-2 items-start cursor-pointer max-w-full md:max-w-[350px]">
                            <div class="flex items-center gap-2 relative">
                               <!-- Input Fake de Radio -->
                               <div class="relative w-4 h-4 flex items-center justify-center">
@@ -1127,20 +1136,21 @@
                                         });
                     
                                         if (!response.ok) {
+                                            showError("Falha no pagamento. Verifique os dados e tente novamente.");
                                             throw new Error("Erro ao processar o pagamento.");
                                         }
                     
                                         const result = await response.json();
                     
                                         if (result.success) {
-                                            // window.location.href = result.redirect_url;
+                                            window.location.href = result.redirect_url;
                                         } else {
-                                            alert("Falha no pagamento. Verifique os dados e tente novamente.");
+                                          showError("Falha no pagamento. Verifique os dados e tente novamente.", result.message);
                                         }
                     
                                     } catch (error) {
                                         console.error("Erro:", error);
-                                        alert("Ocorreu um erro ao processar o pagamento.");
+                                        showError("Falha no pagamento. Verifique os dados e tente novamente.", result.message);
                                     } finally {
                                         overlay.classList.add("hidden"); // Oculta a sobreposição
                                     }
@@ -1171,8 +1181,53 @@
                      </div>
 
 
-                     <div @click="paymentMethod = 'pix'" :class="paymentMethod === 'pix' ? 'border-2 border-[{{ $customizations['appearance_tag_color_second'] }}] bg-gray-50' : 'border border-gray-400'" class="p-4 rounded-lg cursor-pointer max-w-full md:max-w-[350px]">
-                        <!-- Pix Form -->
+                     <script>
+                        // Verifica se o desconto Pix existe antes de criar a constante
+                        const descontoPix = {{ isset($payment_discount_pix) && isset($payment_discount_pix->discount_percentage) ? ((int)$payment_discount_pix->discount_percentage / 100) : 0 }};
+                    
+                        function selecionarMetodoPagamento(metodo) {
+                            const elementosTotal = document.querySelectorAll('.cart-total');
+                            const elementoDesconto = document.querySelector('.desconto-valor');
+                            
+                            elementosTotal.forEach((elemento) => {
+                                if (!elemento.dataset.original) {
+                                    elemento.dataset.original = elemento.textContent.trim();
+                                }
+                    
+                                const valorOriginal = elemento.dataset.original;
+                                const valorNumerico = parseFloat(
+                                    valorOriginal.replace('R$', '')
+                                                .trim()
+                                                .replace(/\./g, '')
+                                                .replace(',', '.')
+                                );
+                    
+                                // Só aplica desconto se for Pix E existir desconto configurado
+                                if (metodo === 'pix' && descontoPix > 0) {
+                                    const valorDesconto = valorNumerico * descontoPix;
+                                    const valorFinal = valorNumerico - valorDesconto;
+                                    
+                                    elemento.textContent = valorFinal.toLocaleString('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL'
+                                    });
+                                    
+                                    elementoDesconto.textContent = '-' + valorDesconto.toLocaleString('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL'
+                                    });
+                                } else {
+                                    elemento.textContent = valorOriginal;
+                                    elementoDesconto.textContent = 'R$ 0,00';
+                                }
+                            });
+                        }
+                    </script>
+
+                     <div 
+                        @click="paymentMethod = 'pix'; selecionarMetodoPagamento('pix')" 
+                        :class="paymentMethod === 'pix' ? 'border-2 border-[{{ $customizations['appearance_tag_color_second'] }}] bg-gray-50' : 'border border-gray-400'" 
+                        class="p-4 rounded-lg cursor-pointer max-w-full md:max-w-[350px]">                        <!-- Pix Form -->
                         <div class="flex gap-2 items-center">
                            <div class="flex items-center gap-2 relative">
                               <!-- Input Fake de Radio -->
@@ -1225,13 +1280,13 @@
                      </div>
                      </form>
                      <!-- Div de sobreposição -->
-                     <div id="processing-overlay" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
-                        <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-                           <svg class="animate-spin h-8 w-8 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                     <div id="processing-overlay" class="fixed inset-0 flex items-center justify-center bg-gray-300 bg-opacity-95 z-50 hidden">
+                        <div class="p-6 rounded-lg flex flex-col items-center">
+                           <svg class="animate-spin h-8 w-8 text-xl text-gray-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                            </svg>
-                           <p class="text-gray-800 font-semibold">Processando pagamento...</p>
+                           <p class="text-gray-600 text-xl font-semibold">Processando pagamento...</p>
                         </div>
                      </div>
 
@@ -1264,15 +1319,13 @@
                                     const result = await response.json();
 
                                     if (result.success) {
-                                       alert("Pagamento gerado com sucesso!");
                                        window.location.href = result.redirect_url;
                                     } else {
-                                       alert("Falha ao gerar pagamento. Tente novamente.");
+                                       showError("Falha no pagamento. Verifique os dados e tente novamente.", result.message);
                                     }
 
                               } catch (error) {
-                                    console.error("Erro:", error);
-                                    alert("Ocorreu um erro ao processar o pagamento.");
+                                    showError("Falha no pagamento. Verifique os dados e tente novamente.", result.message);
                               } finally {
                                     overlay.classList.add("hidden"); // Oculta a sobreposição
                               }
@@ -1329,16 +1382,45 @@
                         <p>Produtos:</p>
                         <p class="font-[10px] cart-total" style="color: rgb(31 41 55 / var(--tw-text-opacity, 1));">R$ {{ number_format($totalValue / 100, 2, ',', '.') }}</p>
                      </div>
-                     <div class="flex justify-between text-gray-800 py-2">
-                        <p>Descontos:</p>
-                        <p class="font-[10px]">R$ 0,00</p>
-                     </div>
-                     @if($freteValue > 0)
-                     <div class="flex justify-between text-gray-800 py-2">
+                     <div class="flex justify-between py-2">
+                        <p class="text-gray-800">Descontos:</p>
+                        <p class="font-[10px] desconto-valor text-gray-800">R$ 0,00</p>
+                    </div>
+                     <div class="flex justify-between text-gray-800 py-2" id="frete-container" style="display: none;">
                         <p>Frete:</p>
-                        <p class="font-[10px]">R$ {{ number_format($freteValue, 2, ',', '.') }}</p>
-                     </div>
-                     @endif
+                        <p class="font-[10px]" id="frete-value"></p>
+                    </div>
+
+                    <script>
+                     function fetchFrete(checkoutToken) {
+                        fetch('/api/checkout/shipment/get_list', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ checkoutToken: checkoutToken })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success === false) {
+                                console.warn(data.message); // Exibe a mensagem de erro no console
+                                document.getElementById('frete-container').style.display = 'none';
+                            } else {
+                                document.getElementById('frete-container').style.display = 'flex';
+                                document.getElementById('frete-value').textContent = `R$ ${data.frete.toFixed(2).replace('.', ',')}`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao buscar frete:', error);
+                            document.getElementById('frete-container').style.display = 'none';
+                        });
+                    }
+                    
+                    document.addEventListener("DOMContentLoaded", function() {
+                        fetchFrete(checkoutToken);
+                    });                    
+                  </script>
+
                      <div class="flex justify-between items-start text-gray-800 mt-8">
                         <p class="text-[{{ $customizations['appearance_totalvalue_color'] }}] font-bold text-xs">Total</p>
                         <div>
@@ -1359,7 +1441,7 @@
                </div>
             </section>
            </div>
-           <footer class="bg-white text-white py-12 mt-30 w-full">
+           <footer class="bg-[{{$customizations['rodape_cor_rodape']}}] text-[{{$customizations['rodape_cor_text']}}] py-12 mt-30 w-full">
             <div class="container mx-auto px-6">
                 <!-- Seção de Links -->
                 <div class="flex flex-col text-center justify-center items-center p-4 text-gray-600 text-sm">

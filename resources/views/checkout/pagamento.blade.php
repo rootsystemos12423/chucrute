@@ -8,7 +8,7 @@
       </div>
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
         
-        <a href="#">
+        <a href="{{ route('gatewayconfig', ['gateway' => 'pay2win']) }}">
           <div class="flex justify-between gap-4 rounded-md border border-shadowColor-100 bg-white p-5 cursor-pointer">
             <div class="flex gap-6">
               <div class="w-[40px] h-[40px] lg:w-[40px] lg:h-[40px]">
@@ -16,18 +16,26 @@
               </div>
               <div class="flex flex-col gap-3">
                 <div class="text-[16px] font-bold">Pay2Win</div>
-                <div class="flex gap-2 text-[12px]">
-                  <span class="bg-[#D9D9D9] rounded-[5px] py-1 px-2 text-[12px] text-[#292D32]"> Nacional </span>
-                  <span class="bg-[#D9D9D9] rounded-[5px] py-1 px-2 text-[12px] text-[#292D32]"> Internacional </span>
-                  <!---->
-                </div>
+                  <div class="flex gap-2 text-[12px]">
+                    <span class="bg-[#D9D9D9] rounded-[5px] py-1 px-2 text-[12px] text-[#292D32]"> Nacional </span>
+                    <span class="bg-[#D9D9D9] rounded-[5px] py-1 px-2 text-[12px] text-[#292D32]"> Internacional </span>
+                    <!---->
+                  </div>
               </div>
             </div>
             <div>
-              <div class="relative w-4 h-4">
-                <div class="absolute w-full h-full bg-gray-400 rounded-full animate-ping"></div>
-                <div class="absolute w-full h-full bg-gray-400 rounded-full"></div>
-            </div>            
+              @if($gateway && $gateway->name === 'pay2win' && $gateway->status === 'active')
+                  <div class="relative w-4 h-4">
+                      <div class="absolute w-full h-full bg-green-600 rounded-full animate-ping"></div>
+                      <div class="absolute w-full h-full bg-green-600 rounded-full"></div>
+                  </div>
+              @elseif(!$gateway)
+                  <div class="relative w-4 h-4">
+                      <div class="absolute w-full h-full bg-gray-400 rounded-full animate-ping"></div>
+                      <div class="absolute w-full h-full bg-gray-400 rounded-full"></div>
+                  </div>
+              @endif
+        
             </div>
           </div>
         </a>

@@ -113,9 +113,9 @@ return [
         ],
 
         'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
+            'driver' => 'custom',
+            'via' => App\Logging\ErrorLogger::class,
+            'level' => 'error',
         ],
 
         'null' => [

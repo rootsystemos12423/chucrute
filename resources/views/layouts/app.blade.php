@@ -508,6 +508,16 @@
                               </div>
                             </div>
 
+                            <div class="relative configContent flex pl-8" style="display: none;">
+                              <hr class="t-0 l-0 drawer-bar absolute h-full border-l-2 border-white/70">
+                              <div class="flex w-full flex-col">
+                                <a href="{{ route('logs') }}" class="flex min-h-[48px] w-full cursor-pointer items-center justify-start gap-5 rounded-lg px-5 hover:font-bold hover:text-white text-white/70">
+                                  <span class="select-none truncate text-regular">Logs</span>
+                                  <div class="rounded-[4px] bg-[#F30168] py-[0.5px] px-1 text-[10px] text-white" style="display: none;">Novo</div>
+                                </a>
+                              </div>
+                            </div>
+
                             <script>
                               document.getElementById('configToggle').addEventListener('click', function() {
                                 // Seleciona todos os elementos com a classe "ordersContent"

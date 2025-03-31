@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\StoreProductShopifyCheckout;
 use Illuminate\Support\Facades\Log;
 use App\Models\Domain;
-
+use App\Models\GoogleAdsPixel;
 
 class AppsController extends Controller
 {
@@ -266,6 +266,43 @@ private function updateThemeAssets($store, $domain)
 
 }
 
+
+public function googleads(){
+
+    $pixels = GoogleAdsPixel::where('store_id', session('store_id'))->get();
+
+    $count = GoogleAdsPixel::where('store_id', session('store_id'))->count();
+
+    return view('apps.googleAds.gads', compact('pixels', 'count'));
+}
+
+public function googleadsCreate(){
+
+    return view('apps.googleAds.create');
+}
+
+public function googleadsStore(Request $request)
+{
+    // Validação dos dados
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'conversion_id' => 'required|string|max:50',
+        'conversion_label' => 'required|string|max:255',
+    ]);
+
+    // Criar e salvar o pixel no banco
+    $pixel = GoogleAdsPixel::create([
+        'store_id' => session('store_id'), // Inclui o store_id para evitar erro
+        'conversion_id' => $validated['conversion_id'],
+        'name' => $validated['name'],
+        'conversion_label' => $validated['conversion_label'],
+        'send_event_pix' => $request->has('sent_pix'), // Salva como true se estiver presente
+        'send_event_bankslip' => $request->has('sent_bank_slip'), // Salva como true se estiver presente
+    ]);
+
+    // Redirecionar com mensagem de sucesso
+    return redirect()->route('googleads')->with('success', 'Pixel do Google Ads criado com sucesso!');
+}
 
     
 }

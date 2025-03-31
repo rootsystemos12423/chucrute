@@ -4,14 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Store;
+use App\Models\Domain;
+use App\Models\Gateway;
+use App\Models\Shipping;
+use App\Models\CheckoutOrder;
 
 
 class DashboardController extends Controller
 {
-    public function index(){
+    public function index()
+    {
+        $storeId = session('store_id');
 
-        return view('dashboard');
+        $domain = Domain::where('store_id', $storeId)->first() ?? null;
+        $gateway = Gateway::where('store_id', $storeId)->first() ?? null;
+        $shipping = Shipping::where('store_id', $storeId)->first() ?? null;
+
+        return view('dashboard', compact('domain', 'gateway', 'shipping'));
     }
+
 
     public function create_checkout_store(Request $request)
 {
@@ -52,6 +63,13 @@ public function change_checkout_store(Request $request)
 
         // Retorno de sucesso
         return redirect()->back(); // HTTP 201 Created
+}
+
+public function mail(){
+
+    $order = CheckoutOrder::find(5);
+    
+    return view('mail.order_confirmation', compact('order'));
 }
 
 }

@@ -23,6 +23,11 @@ class Store extends Model
         return $this->hasMany(Shipping::class); // Um store pode ter muitos checkouts
     }
 
+    public function customizations()
+    {
+        return $this->hasOne(CheckoutCustomizationSetting::class);
+    }
+
 
     protected static function boot()
     {

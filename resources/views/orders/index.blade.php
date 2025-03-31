@@ -139,7 +139,7 @@
                               @elseif($order->status === 'paid')
                                 <div class="inline-flex items-center px-3 py-1 rounded text-regular text-statusApproved bg-statusApproved-100 min-w-max">Aprovado</div>
                               @elseif($order->status === 'refused')
-                                <div class="inline-flex items-center px-3 py-1 rounded text-regular text-red-400 bg-red-400/05 min-w-max">Recusado</div>
+                                <div class="inline-flex items-center px-3 py-1 rounded text-regular text-red-400 bg-red-400/10 min-w-max">Recusado</div>
                               @endif
                             </td>
                             <td data-v-b18394c4="" class="break-all px-[6px] pb-[30px] pt-[30px] text-sm text-primary text-left">

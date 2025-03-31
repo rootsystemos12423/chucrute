@@ -3,7 +3,7 @@
     x-data 
     x-show="$store.popup.visible" 
     x-transition.scale.opacity.duration.300ms
-    class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-white border shadow-xl rounded-lg p-6 flex items-center gap-4 w-80 text-base"
+    class="fixed bottom-10 left-1/2 transform -translate-x-1/4 bg-white border shadow-xl z-50 rounded-lg p-6 flex items-center gap-4 w-80 max-w-full text-base"
     :class="{
         'border-red-500 text-red-700': $store.popup.type === 'error',
         'border-blue-500 text-blue-700': $store.popup.type === 'loading',
@@ -39,7 +39,7 @@ document.addEventListener('alpine:init', () => {
         message: '',
         type: 'loading',
 
-        show(type, msg, duration = 3000) {
+        show(type, msg, duration = 5000) {
             this.type = type;
             this.message = msg;
             this.visible = true;

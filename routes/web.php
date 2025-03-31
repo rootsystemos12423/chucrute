@@ -16,11 +16,16 @@ Route::get('/', function () {
     return abort('403', 'Working');
 });
 
+Route::get('/test-error', function() {
+    throw new \Exception('Este é um erro de teste');
+});
+
 Route::middleware([
     'auth',
 ])->group(function () {
     // Rota da dashboard, agora utilizando o controlador
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/mail', [DashboardController::class, 'mail'])->name('mail');
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
     Route::get('/orders/{id}', [OrdersController::class, 'show'])->name('order');
@@ -37,12 +42,16 @@ Route::middleware([
     Route::prefix('apps')->group(function () {
         Route::get('/', [AppsController::class, 'index'])->name('apps');
         Route::get('/shopify', [AppsController::class, 'shopify'])->name('shopify');
+        Route::get('/googleads', [AppsController::class, 'googleads'])->name('googleads');
+        Route::get('/googleads/create', [AppsController::class, 'googleadsCreate'])->name('googleads.create');
+        Route::post('/googleads/store', [AppsController::class, 'googleadsStore'])->name('googleads.store');
     });
     Route::prefix('checkout')->group(function () {
         Route::get('/descontos', [CheckoutController::class, 'indexDescontos'])->name('descontos');
         Route::get('/socialproof', [CheckoutController::class, 'indexProvas'])->name('socialproof');
         Route::get('/pagamento', [CheckoutController::class, 'indexPagamentos'])->name('pagamentos');
         Route::get('/pagamento/{gateway}', [CheckoutController::class, 'indexGatewayConfig'])->name('gatewayconfig');
+        Route::post('/store/pagamento/gateway', [CheckoutController::class, 'storeGatewayCredentials'])->name('store.pagamento.gateway');
         Route::post('/store/checkout-discounts', [CheckoutController::class, 'storePaymentDiscounts'])->name('store.checkout.discounts');
     });
     Route::prefix('config')->group(function () {
@@ -51,7 +60,8 @@ Route::middleware([
         Route::post('/store/domain', [ConfigController::class, 'storeDomain'])->name('store.config.domain');
         Route::get('/logistic', [ConfigController::class, 'logisticIndex'])->name('logistic');
         Route::get('/logistic/create', [ConfigController::class, 'LogisticShow'])->name('logistic.show.create');
-
+        Route::get('/config/logs', [ConfigController::class, 'LogsIndex'])->name('logs');
+        Route::get('/config/logs/{log}', [ConfigController::class, 'Logshow'])->name('logs.show');
     });
 
     Route::prefix('builder')->group(function () {

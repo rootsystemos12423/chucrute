@@ -48,7 +48,7 @@
                       <tbody>
                         <tr class="border-b border-tableBorder bg-uncontrastColor custom-hover">
                           <td class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left">
-                            <div class="flex items-center space-x-8">
+                            <a href="{{ route('googleads') }}" class="flex items-center space-x-8">
                               <img class="ml-4 h-[50px] w-[50px] min-w-[50px] rounded-lg" src="https://cdn.adoorei.com/imagens/apps/googleads.png" alt="Google Ads">
                               <div class="flex flex-col gap-4 text-regular text-primary">
                                 <div class="flex items-center gap-4 font-bold">Google Ads
@@ -56,7 +56,7 @@
                                 </div>
                                 <div>Integração nativa com pixel do Google ads para rastreio de suas vendas.</div>
                               </div>
-                            </div>
+                            </a>
                           </td>
                           <td class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left"></td>
                           <td class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left">

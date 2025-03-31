@@ -6,16 +6,22 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\AppsController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ReportsController;
+
 
 Route::post('public/shopify/cart', [CheckoutController::class, 'shopify_cart_payload']);
 Route::options('public/shopify/cart', [CheckoutController::class, 'shopify_cart_payload']);
 
 Route::post('store/shopify/credentials', [AppsController::class, 'storeShopifyCheckoutStore']);
+Route::post('webhook', [WebhookController::class, 'payloader']);
+
+
 
 // DASHBOARD ROUTES
 Route::get('dashboard/orderbumps/search', [MarketingController::class, 'list_products_orderbump']);
 Route::post('dashboard/logistic/store', [ConfigController::class, 'logistic_store']);
-
+Route::post('dashboard/filter-data/reports', [ReportsController::class, 'filterData']);
 
 // CHECKOUT ROUTES
 Route::post('checkout/customers/personal_data', [CheckoutController::class, 'recive_personal_data']);
@@ -27,6 +33,7 @@ Route::post('checkout/cart/total', [CheckoutController::class, 'cart_total_value
 Route::post('checkout/customers/select_offer_orderbump', [CheckoutController::class, 'select_offer_orderbump']);
 Route::post('checkout/customers/remove_offer_orderbump', [CheckoutController::class, 'remove_offer_orderbump']);
 Route::post('checkout/shipment/cep_lookup', [CheckoutController::class, 'cep_lookup']);
+Route::post('checkout/shipment/get_list', [CheckoutController::class, 'shipping_get_list']);    
 Route::post('checkout/list/items', [CheckoutController::class, 'getCartItems']);
 Route::post('checkout/list/list_shippiment_methods', [CheckoutController::class, 'list_shippiment_methods']);
 Route::post('checkout/recive/recive_selected_shippiment_method', [CheckoutController::class, 'recive_selected_shippiment_method']);
