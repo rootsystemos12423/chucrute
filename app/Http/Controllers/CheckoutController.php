@@ -181,16 +181,20 @@ class CheckoutController extends Controller
             );
         }
 
-        // Cria ou atualiza o checkout associado a esse carrinho
-        $checkout = Checkout::updateOrCreate(
-            ['cart_token' => $cart->token],
-            [
-                'token' => $cart->token, // Utiliza o mesmo token do carrinho
-                'shop_domain' => $shop->shopify_url,
-                'store_id' => $domain->store_id,
-                'steps' => 0,
-            ]
-        );
+        $checkout = Checkout::where('token', $cart->token)->first();
+
+        if(!$checkout){
+            // Cria ou atualiza o checkout associado a esse carrinho
+            $checkout = Checkout::updateOrCreate(
+                ['cart_token' => $cart->token],
+                [
+                    'token' => $cart->token, // Utiliza o mesmo token do carrinho
+                    'shop_domain' => $shop->shopify_url,
+                    'store_id' => $domain->store_id,
+                    'steps' => 0,
+                ]
+            );
+        }
 
         // Monta a URL de redirecionamento do checkout
         $checkoutUrl = "https://{$domain->domain}/checkout/redirect/cart/{$cart->token}";
