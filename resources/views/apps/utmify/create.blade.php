@@ -29,7 +29,7 @@
 
                           <div class="flex flex-col items-start justify-start w-full gap-2">
                               <span class="text-regular text-primary">Api Da Utmify *</span>
-                              <input wire:model="api_key" name="api_key" value="{{ $utmify->utmify_api_key }}" type="text" class="w-full p-2 border rounded-md" />
+                              <input wire:model="api_key" name="api_key" value="{{ $utmify->utmify_api_key ?? '' }}" type="text" class="w-full p-2 border rounded-md" />
                             </div>
                         </div>
 
