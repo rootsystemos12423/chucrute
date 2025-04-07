@@ -1027,8 +1027,6 @@ public function list_shippiment_methods(Request $request)
                     'Accept' => 'application/json'
                 ])->post('https://api.utmify.com.br/api-credentials/orders', $orderData);
 
-                return $response;
-
             }
 
             Mail::to($checkout->customer_email)->send(new OrderGeneratedMail($checkoutOrder));
@@ -1229,6 +1227,61 @@ public function list_shippiment_methods(Request $request)
                     'external_reference' => $externalReference,
                 ]);
 
+                $utmify = AppsUtmify::where('store_id', $checkout->store_id)->first();
+
+                if($utmify){
+                    $orderData = [
+                        'orderId' => $checkoutOrder->external_reference,
+                        'platform' => 'shopify',
+                        'paymentMethod' => 'credit_card',
+                        'status' => 'refused',
+                        'createdAt' => date('Y-m-d H:i:s'),
+                        'approvedDate' => null,
+                        'refundedAt' => null,
+                        'customer' => [
+                            'name' => $checkout->customer_name,
+                            'email' => $checkout->customer_email,
+                            'phone' => $checkout->customer_telphone,
+                            'document' => $checkout->customer_taxId,
+                            'country' => 'BR',
+                            'ip' => $checkout->ip // Usando o IP real do cliente
+                        ],
+                        'products' => array_map(function($item) {
+                            return [
+                                'id' => '123', // Usando ID do item ou gerando um fallback
+                                'name' => 'PRODUTO VENDEDOR',
+                                'planId' => null,
+                                'planName' => null,
+                                'quantity' => $item['quantity'],
+                                'priceInCents' => intval($item['unitPrice'])
+                            ];
+                        }, $data['items']),
+                        'trackingParameters' => [
+                            'src' => $checkout->metadados['src'] ?? null,
+                            'sck' => $checkout->metadados['sck'] ?? null,
+                            'utm_source' => $checkout->metadados['utm_source'] ?? null,
+                            'utm_campaign' => $checkout->metadados['utm_campaign'] ?? null,
+                            'utm_medium' => $checkout->metadados['utm_medium'] ?? null,
+                            'utm_content' => $checkout->metadados['utm_content'] ?? null,
+                            'utm_term' => $checkout->metadados['utm_term'] ?? null
+                        ],
+                        'commission' => [
+                            'totalPriceInCents' => $totalPrice,
+                            'gatewayFeeInCents' => 0, // Ajustar conforme gateway
+                            'userCommissionInCents' => 0, // Ajustar conforme regras de comissão
+                            'currency' => 'BRL'
+                        ],
+                        'isTest' => false,
+                    ];
+        
+                    $response = Http::withHeaders([
+                        'x-api-token' => $utmify->utmify_api_key,
+                        'Content-Type' => 'application/json',
+                        'Accept' => 'application/json'
+                    ])->post('https://api.utmify.com.br/api-credentials/orders', $orderData);
+
+                }
+
                 return response()->json([
                     'success' => false,
                     'approved' => false,
@@ -1253,6 +1306,61 @@ public function list_shippiment_methods(Request $request)
                     ]),
                     'external_reference' => $externalReference,
                 ]);
+
+                $utmify = AppsUtmify::where('store_id', $checkout->store_id)->first();
+
+                if($utmify){
+                    $orderData = [
+                        'orderId' => $checkoutOrder->external_reference,
+                        'platform' => 'shopify',
+                        'paymentMethod' => 'credit_card',
+                        'status' => 'paid',
+                        'createdAt' => date('Y-m-d H:i:s'),
+                        'approvedDate' => date('Y-m-d H:i:s'),
+                        'refundedAt' => null,
+                        'customer' => [
+                            'name' => $checkout->customer_name,
+                            'email' => $checkout->customer_email,
+                            'phone' => $checkout->customer_telphone,
+                            'document' => $checkout->customer_taxId,
+                            'country' => 'BR',
+                            'ip' => $checkout->ip // Usando o IP real do cliente
+                        ],
+                        'products' => array_map(function($item) {
+                            return [
+                                'id' => '123', // Usando ID do item ou gerando um fallback
+                                'name' => 'PRODUTO VENDEDOR',
+                                'planId' => null,
+                                'planName' => null,
+                                'quantity' => $item['quantity'],
+                                'priceInCents' => intval($item['unitPrice'])
+                            ];
+                        }, $data['items']),
+                        'trackingParameters' => [
+                            'src' => $checkout->metadados['src'] ?? null,
+                            'sck' => $checkout->metadados['sck'] ?? null,
+                            'utm_source' => $checkout->metadados['utm_source'] ?? null,
+                            'utm_campaign' => $checkout->metadados['utm_campaign'] ?? null,
+                            'utm_medium' => $checkout->metadados['utm_medium'] ?? null,
+                            'utm_content' => $checkout->metadados['utm_content'] ?? null,
+                            'utm_term' => $checkout->metadados['utm_term'] ?? null
+                        ],
+                        'commission' => [
+                            'totalPriceInCents' => $totalPrice,
+                            'gatewayFeeInCents' => 0, // Ajustar conforme gateway
+                            'userCommissionInCents' => 0, // Ajustar conforme regras de comissão
+                            'currency' => 'BRL'
+                        ],
+                        'isTest' => false,
+                    ];
+        
+                    $response = Http::withHeaders([
+                        'x-api-token' => $utmify->utmify_api_key,
+                        'Content-Type' => 'application/json',
+                        'Accept' => 'application/json'
+                    ])->post('https://api.utmify.com.br/api-credentials/orders', $orderData);
+
+                }
 
                 return response()->json([
                     'success' => true,
