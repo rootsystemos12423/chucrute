@@ -314,7 +314,6 @@ public function utmify(){
 public function utmify_store(Request $request){
      // Validação dos dados
      $validated = $request->validate([
-        'name' => 'required|string|max:255',
         'api_key' => 'required|string|max:255',
     ]);
 
