@@ -45,6 +45,8 @@ Route::middleware([
         Route::get('/googleads', [AppsController::class, 'googleads'])->name('googleads');
         Route::get('/googleads/create', [AppsController::class, 'googleadsCreate'])->name('googleads.create');
         Route::post('/googleads/store', [AppsController::class, 'googleadsStore'])->name('googleads.store');
+        Route::get('/utmify', [AppsController::class, 'utmify'])->name('utmify');
+        Route::post('/utmify/store', [AppsController::class, 'utmify_store'])->name('utmify.store');
     });
     Route::prefix('checkout')->group(function () {
         Route::get('/descontos', [CheckoutController::class, 'indexDescontos'])->name('descontos');

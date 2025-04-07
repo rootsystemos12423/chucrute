@@ -9,6 +9,7 @@ use App\Models\StoreProductShopifyCheckout;
 use Illuminate\Support\Facades\Log;
 use App\Models\Domain;
 use App\Models\GoogleAdsPixel;
+use App\Models\AppsUtmify;
 
 class AppsController extends Controller
 {
@@ -36,25 +37,24 @@ class AppsController extends Controller
             'skip_cart' => 'sometimes|boolean',
         ]);
 
-        $FindStore = ShopifyCheckoutStore::where('store_id', session('store_id'))->first();
-
-        if($FindStore){
-            $theme = $this->updateThemeAssets($store);
-            $FindStore->update($validated);
-            $products = $this->getShopifyProducts($FindStore);
-            
-            return response()->json([
-                'message' => 'Shopify checkout store updated successfully!',
-                'products' => $products
-            ], 200);
-        }
-
         $domain = Domain::where('store_id', $validated['store_id'])->first();
 
         if(!$domain){
             return response()->json([
                 'message' => 'Dominio Não Cadastrado',
             ], 400);
+        }
+
+        $FindStore = ShopifyCheckoutStore::where('store_id', $validated['store_id'])->first();
+
+        if($FindStore){
+            $FindStore->update($validated);
+            $theme = $this->updateThemeAssets($FindStore);
+            $products = $this->getShopifyProducts($FindStore);
+            
+            return response()->json([
+                'message' => 'Shopify checkout store updated successfully!',
+            ], 200);
         }
 
         // Cria um novo registro na tabela shopify_checkout_store
@@ -304,5 +304,29 @@ public function googleadsStore(Request $request)
     return redirect()->route('googleads')->with('success', 'Pixel do Google Ads criado com sucesso!');
 }
 
+public function utmify(){
+
+    $utmify = AppsUtmify::where('store_id', session('store_id'))->first() ?? null;
+
+    return view('apps.utmify.create', compact('utmify'));
+}
+
+public function utmify_store(Request $request){
+     // Validação dos dados
+     $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'api_key' => 'required|string|max:255',
+    ]);
+
+    // Criar e salvar o pixel no banco
+    $pixel = AppsUtmify::updateOrCreate(
+        ['store_id' => session('store_id')],
+        [
+        'utmify_api_key' => $validated['api_key'], // Inclui o store_id para evitar erro
+        ]);
+
+    // Redirecionar com mensagem de sucesso
+    return redirect()->route('utmify')->with('success', 'Utmify Cadastrada Com Sucesso!');
+}
     
 }

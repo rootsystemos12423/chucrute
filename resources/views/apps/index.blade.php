@@ -68,6 +68,22 @@
                             </div>
                           </td>
                         </tr>
+
+                        <tr data-v-2bf42f57="" data-v-9ef7c93f="" class="border-b border-tableBorder bg-uncontrastColor custom-hover">
+                          <td data-v-b18394c4="" data-v-9ef7c93f="" class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left">
+                            <a href="{{ route('utmify') }}" data-v-9ef7c93f="" class="flex items-center space-x-8">
+                              <img data-v-9ef7c93f="" class="ml-4 h-[50px] w-[50px] min-w-[50px] rounded-lg" src="https://cdn.adoorei.com/imagens/apps/utmify.png" alt="Utmify">
+                              <div data-v-9ef7c93f="" class="flex flex-col gap-4 text-regular text-primary">
+                                <div data-v-9ef7c93f="" class="flex items-center gap-4 font-bold">Utmify <span data-v-9ef7c93f="" class="rounded-[5px] bg-[#D9D9D9] p-1 text-[10px] font-normal text-[#292D32]"> App externo </span>
+                                </div>
+                                <div data-v-9ef7c93f="">Poderoso gerenciador de anúncios para ajudar na sua escala.</div>
+                              </div>
+                            </a>
+                          </td>
+                          <td data-v-b18394c4="" data-v-9ef7c93f="" class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left"></td>
+                          <td data-v-b18394c4="" data-v-9ef7c93f="" class="break-all px-[6px] pb-[30px] pt-[30px] text-regular text-primary text-left"></td>
+                        </tr>
+
                       </tbody>
                     </table>
                   </div>

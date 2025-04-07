@@ -917,9 +917,16 @@ public function list_shippiment_methods(Request $request)
                     'Authorization' => $authorizationHeader // Aqui está o Authorization codificado
                 ])->post('https://api.pay2w.com/transactions', $data);
            }
-            
+
             // Converte a resposta para JSON
             $responseData = $response->json();
+
+            if($responseData['message'] === 'Unauthorized.'){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Credenciais Invalidas Contate O Dono Da Loja',
+                ], 200);
+            }
 
             // Criar o pedido no banco de dados
             $checkoutOrder = CheckoutOrder::create([
