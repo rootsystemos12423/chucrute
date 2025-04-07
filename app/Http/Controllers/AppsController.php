@@ -49,7 +49,7 @@ class AppsController extends Controller
 
         if($FindStore){
             $FindStore->update($validated);
-            $theme = $this->updateThemeAssets($FindStore);
+            $theme = $this->updateThemeAssets($FindStore, $domain);
             $products = $this->getShopifyProducts($FindStore);
             
             return response()->json([
