@@ -951,7 +951,7 @@ public function list_shippiment_methods(Request $request)
             // Converte a resposta para JSON
             $responseData = $response->json();
 
-            if($responseData['message'] === 'Unauthorized.'){
+            if(isset($responseData['message']) === 'Unauthorized.'){
                 return response()->json([
                     'success' => false,
                     'message' => 'Credenciais Invalidas Contate O Dono Da Loja',
