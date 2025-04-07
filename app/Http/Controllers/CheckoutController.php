@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use App\Models\OrderBump;
 use App\Models\Domain;
 use App\Models\Store;
+use App\Models\AppsUtmify;
 use App\Models\CheckoutsPaymentDiscount;
 use Illuminate\Support\Facades\Http;
 use App\Models\CheckoutCustomizationSetting;
@@ -973,51 +974,62 @@ public function list_shippiment_methods(Request $request)
                 'external_reference' => $externalReference,
             ]);
 
-            $orderData = [
-                'orderId' => $checkoutOrder->external_reference,
-                'platform' => 'shopify',
-                'paymentMethod' => 'pix',
-                'status' => 'waiting_payment',
-                'createdAt' => date('Y-m-d H:i:s'),
-                'approvedDate' => null,
-                'refundedAt' => null,
-                'customer' => [
-                    'name' => $checkout->customer_name,
-                    'email' => $checkout->customer_email,
-                    'phone' => $checkout->customer_telphone,
-                    'document' => $checkout->customer_taxId,
-                    'country' => 'BR',
-                    'ip' => $checkout->ip // Usando o IP real do cliente
-                ],
-                'products' => array_map(function($item) {
-                    return [
-                        'id' => '123', // Usando ID do item ou gerando um fallback
-                        'name' => 'PRODUTO VENDEDOR',
-                        'planId' => null,
-                        'planName' => null,
-                        'quantity' => $item['quantity'],
-                        'priceInCents' => intval($item['unitPrice'])
-                    ];
-                }, $data['items']),
-                'trackingParameters' => [
-                    'src' => $checkout->metadados['src'] ?? null,
-                    'sck' => $checkout->metadados['sck'] ?? null,
-                    'utm_source' => $checkout->metadados['utm_source'] ?? null,
-                    'utm_campaign' => $checkout->metadados['utm_campaign'] ?? null,
-                    'utm_medium' => $checkout->metadados['utm_medium'] ?? null,
-                    'utm_content' => $checkout->metadados['utm_content'] ?? null,
-                    'utm_term' => $checkout->metadados['utm_term'] ?? null
-                ],
-                'commission' => [
-                    'totalPriceInCents' => $totalPrice,
-                    'gatewayFeeInCents' => 0, // Ajustar conforme gateway
-                    'userCommissionInCents' => 0, // Ajustar conforme regras de comissão
-                    'currency' => 'BRL'
-                ],
-                'isTest' => false,
-            ];
+            $utmify = AppsUtmify::where('store_id', $checkout->store_id)->first();
 
-            dd($orderData);
+            if($utmify){
+                $orderData = [
+                    'orderId' => $checkoutOrder->external_reference,
+                    'platform' => 'shopify',
+                    'paymentMethod' => 'pix',
+                    'status' => 'waiting_payment',
+                    'createdAt' => date('Y-m-d H:i:s'),
+                    'approvedDate' => null,
+                    'refundedAt' => null,
+                    'customer' => [
+                        'name' => $checkout->customer_name,
+                        'email' => $checkout->customer_email,
+                        'phone' => $checkout->customer_telphone,
+                        'document' => $checkout->customer_taxId,
+                        'country' => 'BR',
+                        'ip' => $checkout->ip // Usando o IP real do cliente
+                    ],
+                    'products' => array_map(function($item) {
+                        return [
+                            'id' => '123', // Usando ID do item ou gerando um fallback
+                            'name' => 'PRODUTO VENDEDOR',
+                            'planId' => null,
+                            'planName' => null,
+                            'quantity' => $item['quantity'],
+                            'priceInCents' => intval($item['unitPrice'])
+                        ];
+                    }, $data['items']),
+                    'trackingParameters' => [
+                        'src' => $checkout->metadados['src'] ?? null,
+                        'sck' => $checkout->metadados['sck'] ?? null,
+                        'utm_source' => $checkout->metadados['utm_source'] ?? null,
+                        'utm_campaign' => $checkout->metadados['utm_campaign'] ?? null,
+                        'utm_medium' => $checkout->metadados['utm_medium'] ?? null,
+                        'utm_content' => $checkout->metadados['utm_content'] ?? null,
+                        'utm_term' => $checkout->metadados['utm_term'] ?? null
+                    ],
+                    'commission' => [
+                        'totalPriceInCents' => $totalPrice,
+                        'gatewayFeeInCents' => 0, // Ajustar conforme gateway
+                        'userCommissionInCents' => 0, // Ajustar conforme regras de comissão
+                        'currency' => 'BRL'
+                    ],
+                    'isTest' => false,
+                ];
+    
+                $response = Http::withHeaders([
+                    'x-api-token' => $utmify->utmify_api_key,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ])->post('https://api.utmify.com.br/api-credentials/orders', $orderData);
+
+                return $response;
+
+            }
 
             Mail::to($checkout->customer_email)->send(new OrderGeneratedMail($checkoutOrder));
 
