@@ -24,6 +24,7 @@ class Checkout extends Model
         'total_discount',
         'currency',
         'payment_details',
+        'metadados',
         'steps',
         'store_id',
         'frete_id'
@@ -33,6 +34,7 @@ class Checkout extends Model
     protected $casts = [
         'customer_shipping_address' => 'array',
         'payment_details' => 'array',
+        'metadados' => 'array',
     ];
 
     /**

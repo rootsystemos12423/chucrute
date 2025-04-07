@@ -209,6 +209,9 @@ class CheckoutController extends Controller
 
     public function checkout_redirect_to_link(Request $request, $token)
     {
+
+        dd($request);
+
         $key = $request->query('key');
         
         // Criando o cookie corretamente
