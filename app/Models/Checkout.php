@@ -27,7 +27,8 @@ class Checkout extends Model
         'metadados',
         'steps',
         'store_id',
-        'frete_id'
+        'frete_id',
+        'ip'
     ];
 
     // Converte colunas JSON para array automaticamente
