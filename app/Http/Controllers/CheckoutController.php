@@ -209,26 +209,52 @@ class CheckoutController extends Controller
 
     public function checkout_redirect_to_link(Request $request, $token)
     {
-
-        dd($request);
-
         $key = $request->query('key');
         
         // Criando o cookie corretamente
         $cookie = Cookie::make('checkout_token', $token . '?key=' . $key, 240);  // 240 minutos de duração
 
-        $checkout = Checkout::where('token', $token . '?key=' . $key)->first();
+        $checkout = Checkout::where('token', $token . '?key=' . $key)->firstOrFail();
+        
+        // Captura todos os parâmetros de marketing
+        $marketingParams = $this->extractMarketingParams($request);
+        
+        if (!empty($marketingParams)) {
+            // Atualiza os metadados mantendo os existentes e adicionando os novos
+            $currentMetadata = $checkout->metadados ?? [];
+            $checkout->metadados = array_merge($currentMetadata, $marketingParams);
+        }
         
         if($checkout->steps === 0){
             $checkout->steps = 1;
         }
         
         $checkout->save();
-    
-        // Redireciona para a rota 'show.checkoout' com o cookie anexado
+
         return redirect()->route('show.checkoout')->cookie($cookie);
     }
-    
+
+    /**
+     * Extrai todos os parâmetros de marketing da requisição
+     */
+    protected function extractMarketingParams(Request $request): array
+    {
+        $params = [];
+        $marketingKeys = [
+            // Parâmetros UTM padrão
+            'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+            // Parâmetros adicionais
+            'keyword', 'device', 'network', 'placement', 'creative', 'adgroupid', 'campaignid'
+        ];
+        
+        foreach ($marketingKeys as $key) {
+            if ($request->has($key)) {
+                $params[$key] = $request->input($key);
+            }
+        }
+        
+        return $params;
+    }
 
 
 public function recive_personal_data(Request $request)
